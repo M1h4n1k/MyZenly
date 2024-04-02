@@ -53,7 +53,7 @@ private fun MainNavButton(icon: ImageVector, text: String, onClick: () -> Unit){
         onClick = { onClick() },
         shape = RoundedCornerShape(10.dp),
         colors = ButtonDefaults.buttonColors(
-            containerColor = Color(0xFF989898),
+            containerColor = MaterialTheme.colorScheme.primary,
             contentColor = Color.White
         ),
         contentPadding = PaddingValues(0.dp)
@@ -95,7 +95,7 @@ fun Main(navController: NavController){
         */
 //        googleMapOptionsFactory = { GoogleMapOptions().mapId("b68aea34d834a746") },
         properties = MapProperties(
-            mapType = MapType.TERRAIN,
+            mapType = MapType.NORMAL,
             isBuildingEnabled = true,
             isIndoorEnabled = true,
             ),
