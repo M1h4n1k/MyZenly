@@ -7,7 +7,7 @@ from sqlalchemy.orm import Session
 router = APIRouter(prefix='/requests')
 
 
-@router.get('/', response_model=list[schemas.Friend], status_code=200)
+@router.get('/', response_model=list[schemas.User], status_code=200)
 def get_friend_requests(user_id: int, db: Session = Depends(get_db)):
     return crud.get_friend_requests(db, user_id)
 

@@ -31,7 +31,7 @@ fun UserCard(user: Map<String, String>, content: @Composable() () -> Unit) {
     ) {
         Column () {
             Text(
-                text = user.getOrDefault("name", ""),
+                text = user.getOrDefault("nickname", ""),
                 fontSize = 30.sp
             )
         }
@@ -43,7 +43,7 @@ fun UserCard(user: Map<String, String>, content: @Composable() () -> Unit) {
                     fontSize = 22.sp,
                 )
                 Text(
-                    text = user.getOrDefault("time", ""),
+                    text = user.getOrDefault("nickname", ""),
                     fontSize = 16.sp,
                     color = Color(0xFF9A9A9A)
                 )
@@ -61,9 +61,9 @@ fun UserCard(user: Map<String, String>, content: @Composable() () -> Unit) {
 private fun UserCardPreview(){
     MZenlyTheme {
         UserCard(user = mapOf(
-            "name" to "Michael",
+            "nickname" to "Michael",
             "place" to "Hervanta, DUO",
-            "time" to "30 mins ago"
+            "last_update" to "30 mins ago"
         )) {
             Text("Btns")
         }

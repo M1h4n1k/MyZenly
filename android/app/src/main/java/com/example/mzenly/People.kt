@@ -1,39 +1,46 @@
 package com.example.mzenly
 
+import android.os.Handler
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Divider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.mzenly.components.Header
 import com.example.mzenly.components.UserCard
-
 import com.example.mzenly.ui.theme.MZenlyTheme
-
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.tooling.preview.Preview
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
+import java.text.RuleBasedCollator
 
 
 @Composable
@@ -95,37 +102,48 @@ private fun ActionButton(action: Action){
 
 @Composable
 fun People(navController: NavHostController){
+    val profileData = remember { mutableStateOf<ProfileData?>(null) }
 
-    val friends = listOf<Map<String, String>>(
-        mapOf<String, String>("name" to "Michael", "place" to "Hervanta, DUO", "time" to "30 mins ago"),
-        mapOf<String, String>("name" to "Alex", "place" to "TAMK", "time" to "2.5 hours ago"),
-    )
-    val requests = listOf<Map<String, String>>(
-        mapOf<String, String>("name" to "Dinh", "place" to "Kaleva, Prisma", "time" to "1 hour ago"),
-    )
-    val near = listOf<Map<String, String>>(
-        mapOf<String, String>("name" to "Dima", "place" to "Kebab House", "time" to "2 mins ago"),
-    )
+    val call = mzenlyApi.getUser(1)
+    call.enqueue(object : Callback<ProfileData?> {
+        override fun onResponse(call: Call<ProfileData?>, response: Response<ProfileData?>) {
+            if (!response.isSuccessful) return
+            profileData.value = response.body() ?: return
+        }
 
+        override fun onFailure(call: Call<ProfileData?>, t: Throwable) { throw t }
+    })
 
     Column {
         Header(text = "People", navController = navController)
-
-        // I intentionally pass actions as a parameter instead of the parenthesis
-        PeopleBlock("Requests", requests, actions = {
-            Column {
-                ActionButton(Action("add", Color(0xFF4CCD99)))
-                ActionButton(Action("remove", Color(0xFFFF204E)))
+        if (profileData.value == null){
+            Row (modifier = Modifier.fillMaxWidth().offset(0.dp, 10.dp), horizontalArrangement = Arrangement.Center){
+                CircularProgressIndicator()
             }
-        })
-        Spacer(modifier = Modifier.height(10.dp))
-        PeopleBlock("Friends", friends, actions = {
-            ActionButton(Action("remove", Color(0xFFFF204E)))
-        })
-        Spacer(modifier = Modifier.height(10.dp))
-        PeopleBlock("Near", near, actions = {
-            ActionButton(Action("request", Color(0xFFFFC700)))
-        })
+            return;
+        }
+
+        if (profileData.value!!.requests.isNotEmpty()) {
+            // I intentionally pass actions as a parameter instead of the parenthesis
+            PeopleBlock("Requests", profileData.value!!.requests, actions = {
+                Column {
+                    ActionButton(Action("add", Color(0xFF4CCD99)))
+                    ActionButton(Action("remove", Color(0xFFFF204E)))
+                }
+            })
+            Spacer(modifier = Modifier.height(10.dp))
+        }
+        if (profileData.value!!.friends.isNotEmpty()) {
+            PeopleBlock("Friends", profileData.value!!.friends, actions = {
+                ActionButton(Action("remove", Color(0xFFFF204E)))
+            })
+            Spacer(modifier = Modifier.height(10.dp))
+        }
+        if (profileData.value!!.near.isNotEmpty()) {
+            PeopleBlock("Near", profileData.value!!.near, actions = {
+                ActionButton(Action("request", Color(0xFFFFC700)))
+            })
+        }
     }
 }
 

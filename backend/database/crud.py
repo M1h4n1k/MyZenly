@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session, query, joinedload
 from sqlalchemy import desc, asc, func, and_, or_
 from datetime import datetime
 
-from database import models
+from database import models, schemas
 
 
 def create_user(db: Session, user: models.User):
@@ -17,15 +17,18 @@ def get_user(db: Session, user_id: int):
     return db.query(models.User).filter(models.User.id == user_id).first()
 
 
-def update_user(db: Session, user: models.User):
-    db.query(models.User).filter(models.User.id == user.id).update(
-        {
-            'nickname': user.nickname,
-            'place': user.place,
-            'coords': user.coords,
-            'last_update': user.last_update,
-        }
-    )
+def update_user(db: Session, user: schemas.UserUpdate):
+    upd_user = dict()
+    if user.nickname is not None:
+        upd_user['nickname'] = user.nickname
+    if user.place is not None:
+        upd_user['place'] = user.place
+    if user.coords is not None:
+        upd_user['coords'] = user.coords
+        upd_user['last_update'] = datetime.now()
+    if user.visible is not None:
+        upd_user['visible'] = user.visible
+    db.query(models.User).filter(models.User.id == user.id).update(upd_user)
     db.commit()
 
 
@@ -35,7 +38,13 @@ def request_friend(db: Session, user_from: int, user_to: int):
 
 
 def get_friend_requests(db: Session, user_id: int):
-    return db.query(models.User).join(
+    return db.query(
+        models.User.id,
+        models.User.nickname,
+        models.User.place,
+        models.User.coords,
+        models.User.last_update
+    ).join(
         models.FriendRequest,
         models.FriendRequest.user_from == models.User.id
     ).filter(models.FriendRequest.user_to == user_id).all()
@@ -49,7 +58,13 @@ def delete_friend_request(db: Session, user_from: int, user_to: int) -> None:
 
 
 def get_friends(db: Session, user_id: int):
-    return db.query(models.User).join(
+    return db.query(
+        models.User.id,
+        models.User.nickname,
+        models.User.place,
+        models.User.coords,
+        models.User.last_update
+    ).join(
         models.Friendship,
         or_(
             and_(models.Friendship.user1_id == models.User.id, models.Friendship.user2_id == user_id),

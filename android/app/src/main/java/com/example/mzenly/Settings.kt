@@ -1,5 +1,6 @@
 package com.example.mzenly
 
+import android.os.Handler
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -8,11 +9,13 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
@@ -38,7 +41,11 @@ import com.example.mzenly.ui.theme.roundedSansFamily
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.tooling.preview.Preview
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
 
 
 @Composable
@@ -64,13 +71,58 @@ private fun ButtonSwitch(text: String, active: Boolean, activeColor: Color, onCl
 
 
 
+
 @Composable
 fun Settings(navController: NavHostController){
-    var text by remember { mutableStateOf("Michael") }
+    var nickname by remember { mutableStateOf("") }
     var isVisibleToOthers by remember { mutableStateOf(false) }
+    var loading by remember { mutableStateOf(true) }
+
+    val handler by remember { mutableStateOf(Handler()) }
+    var runnable by remember { mutableStateOf(Runnable {}) }
+
+    fun updateInfo(){
+        handler.removeCallbacks(runnable)
+        runnable = Runnable {
+            val ucall = mzenlyApi.updateUser(UserUpdate(1, nickname, null, null, isVisibleToOthers))
+            ucall.enqueue(object : Callback<String?> {
+                override fun onResponse(call: Call<String?>, response: Response<String?>) { }
+
+                override fun onFailure(call: Call<String?>, t: Throwable) {
+                    throw t
+                }
+            })
+        }
+        handler.postDelayed(runnable, 1000)
+    }
+
+    val call by remember { mutableStateOf(mzenlyApi.getUser(1)) }
+    LaunchedEffect(Unit) {
+        call.enqueue(object : Callback<ProfileData?> {
+            override fun onResponse(call: Call<ProfileData?>, response: Response<ProfileData?>) {
+                if (response.isSuccessful) {
+                    val retrievedData = response.body() ?: return
+                    nickname = retrievedData.nickname
+                    isVisibleToOthers = retrievedData.visible
+                    loading = false
+                }
+            }
+
+            override fun onFailure(call: Call<ProfileData?>, t: Throwable) {
+                throw t
+            }
+        })
+    }
+
 
     Column {
         Header(text = "Settings", navController = navController)
+        if (loading){
+            Row (modifier = Modifier.fillMaxWidth().offset(0.dp, 10.dp), horizontalArrangement=Arrangement.Center){
+                CircularProgressIndicator()
+            }
+            return;
+        }
         Column (Modifier.padding(15.dp, 8.dp)) {
             Text(
                 text = "Nickname",
@@ -82,8 +134,11 @@ fun Settings(navController: NavHostController){
                 .padding(20.dp, 0.dp)) {
                 OutlinedTextField(  // TODO increase border width
                     modifier = Modifier.fillMaxWidth(),
-                    value = text,
-                    onValueChange = { text = it },
+                    value = nickname,
+                    onValueChange = {
+                        nickname = it
+                        updateInfo()
+                    },
                     label = { },
                     singleLine = true,
                     textStyle = TextStyle(fontSize = 36.sp, fontFamily = roundedSansFamily),
@@ -113,13 +168,19 @@ fun Settings(navController: NavHostController){
                     "No",
                     !isVisibleToOthers,
                     Color(0xFFFF204E),
-                    onClick={ isVisibleToOthers = false }
+                    onClick={
+                        isVisibleToOthers = false
+                        updateInfo()
+                    }
                 )
                 ButtonSwitch(
                     "Yes",  // is it better to pass text in the curly parenthesis?
                     isVisibleToOthers,
                     Color(0xFF4CCD99),
-                    onClick={ isVisibleToOthers = true }
+                    onClick={
+                        isVisibleToOthers = true
+                        updateInfo()
+                    }
                 )
             }
 
