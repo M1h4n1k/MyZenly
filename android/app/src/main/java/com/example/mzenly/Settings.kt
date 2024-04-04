@@ -1,5 +1,6 @@
 package com.example.mzenly
 
+import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -39,6 +40,27 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
 
+
+@Composable
+private fun ButtonSwitch(text: String, active: Boolean, activeColor: Color, onClick: () -> Unit){
+    val animatedColor by animateColorAsState(
+        if (active) activeColor else Color(0xFF989898),
+        label = "color"
+    )
+
+    Button(
+        onClick = { onClick() }, // TODO add haptic feedback
+        colors = ButtonDefaults.buttonColors(
+            containerColor = animatedColor ,
+            contentColor = Color.White
+        ),
+        shape = RoundedCornerShape(15.dp),
+        modifier = Modifier.width(120.dp)
+    ) {
+        Text(text, fontSize = 30.sp, fontFamily = roundedSansFamily)
+    }
+
+}
 
 
 
@@ -85,30 +107,20 @@ fun Settings(navController: NavHostController){
             Row(
                 Modifier
                     .fillMaxWidth()
-                    .padding(20.dp, 0.dp), horizontalArrangement = Arrangement.SpaceBetween) {
-                Button(
-                    onClick = { isVisibleToOthers = false },
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = if (isVisibleToOthers) Color(0xFF989898) else Color(0xFFFF204E),
-                        contentColor = Color.White
-                    ),
-                    shape = RoundedCornerShape(15.dp),
-                    modifier = Modifier.width(120.dp)
-                ) {
-                    Text("No", fontSize = 30.sp, fontFamily = roundedSansFamily)
-                }
-
-                Button(
-                    onClick = { isVisibleToOthers = true },
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = if (isVisibleToOthers) Color(0xFF4CCD99) else Color(0xFF989898),
-                        contentColor = Color.White
-                    ),
-                    shape = RoundedCornerShape(15.dp),
-                    modifier = Modifier.width(120.dp)
-                ) {
-                    Text("Yes", fontSize = 30.sp, fontFamily = roundedSansFamily)
-                }
+                    .padding(20.dp, 0.dp), horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                ButtonSwitch(
+                    "No",
+                    !isVisibleToOthers,
+                    Color(0xFFFF204E),
+                    onClick={ isVisibleToOthers = false }
+                )
+                ButtonSwitch(
+                    "Yes",  // is it better to pass text in the curly parenthesis?
+                    isVisibleToOthers,
+                    Color(0xFF4CCD99),
+                    onClick={ isVisibleToOthers = true }
+                )
             }
 
         }

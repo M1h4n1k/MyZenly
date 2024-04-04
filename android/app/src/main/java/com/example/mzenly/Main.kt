@@ -1,11 +1,13 @@
 package com.example.mzenly
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -22,9 +24,16 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.StrokeJoin
+import androidx.compose.ui.graphics.TileMode
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
@@ -32,6 +41,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.mzenly.ui.theme.MZenlyTheme
+import com.example.mzenly.ui.theme.roundedSansFamily
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.compose.GoogleMap
@@ -41,7 +51,6 @@ import com.google.maps.android.compose.MapUiSettings
 import com.google.maps.android.compose.Marker
 import com.google.maps.android.compose.MarkerState
 import com.google.maps.android.compose.rememberCameraPositionState
-
 
 
 @Composable
@@ -75,6 +84,30 @@ private fun MainNavButton(icon: ImageVector, text: String, onClick: () -> Unit){
 }
 
 
+@Composable
+private fun PlaceHeader(place: String){
+    Box (Modifier.offset(10.dp)) {
+        Text(
+            place,
+            color = Color.White,
+            fontSize = 45.sp,
+        )
+
+        Text(
+            place,
+            style = TextStyle.Default.copy(
+                color = Color.Black,
+                fontSize = 46.sp,
+                fontFamily = roundedSansFamily,
+                drawStyle = Stroke(
+                    width = 6f,
+                    join = StrokeJoin.Round
+                )
+            )
+        )
+    }
+}
+
 
 @Composable
 fun Main(navController: NavController){
@@ -95,7 +128,7 @@ fun Main(navController: NavController){
         */
 //        googleMapOptionsFactory = { GoogleMapOptions().mapId("b68aea34d834a746") },
         properties = MapProperties(
-            mapType = MapType.NORMAL,
+            mapType = MapType.TERRAIN,  // in emulator the roads are black if I use normal type
             isBuildingEnabled = true,
             isIndoorEnabled = true,
             ),
@@ -108,10 +141,12 @@ fun Main(navController: NavController){
         )
     }
 
+    PlaceHeader("Tampere")
+
     Column (
         modifier = Modifier
             .fillMaxSize()
-            .padding(15.dp, 150.dp),
+            .padding(15.dp, 120.dp),
         horizontalAlignment = Alignment.End,
         verticalArrangement = Arrangement.Bottom
     ){

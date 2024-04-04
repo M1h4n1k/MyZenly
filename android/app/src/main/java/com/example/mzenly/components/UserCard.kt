@@ -19,7 +19,7 @@ import androidx.compose.ui.unit.sp
 
 
 @Composable
-fun UserCard(user: Map<String, String>) {
+fun UserCard(user: Map<String, String>, content: @Composable() () -> Unit) {
     Row(modifier = Modifier
         .fillMaxWidth()
         .height(90.dp)
@@ -36,22 +36,27 @@ fun UserCard(user: Map<String, String>) {
             )
         }
 
-        Column (horizontalAlignment = Alignment.End) {
-            Text(
-                text = user.getOrDefault("place", ""),
-                fontSize = 22.sp,
-            )
-            Text(
-                text = user.getOrDefault("time", ""),
-                fontSize = 16.sp,
-                color = Color(0xFF9A9A9A)
-            )
+        Row (verticalAlignment = Alignment.CenterVertically){
+            Column (horizontalAlignment = Alignment.End) {
+                Text(
+                    text = user.getOrDefault("place", ""),
+                    fontSize = 22.sp,
+                )
+                Text(
+                    text = user.getOrDefault("time", ""),
+                    fontSize = 16.sp,
+                    color = Color(0xFF9A9A9A)
+                )
+            }
+            Column {
+                content()
+            }
         }
     }
 }
 
 
-@Preview(showBackground = true)
+@Preview
 @Composable
 private fun UserCardPreview(){
     MZenlyTheme {
@@ -59,7 +64,9 @@ private fun UserCardPreview(){
             "name" to "Michael",
             "place" to "Hervanta, DUO",
             "time" to "30 mins ago"
-        ))
+        )) {
+            Text("Btns")
+        }
     }
 
 }
