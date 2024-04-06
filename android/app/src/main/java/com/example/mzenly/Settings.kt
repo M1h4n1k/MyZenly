@@ -82,7 +82,7 @@ fun Settings(navController: NavHostController){
     fun updateInfo(){
         handler.removeCallbacks(runnable)
         runnable = Runnable {
-            val ucall = mzenlyApi.updateUser(UserUpdate(1, visible=isVisibleToOthers))
+            val ucall = mzenlyApi.updateUser(UserUpdate(1, nickname=nickname, visible=isVisibleToOthers))
             ucall.enqueue(object : Callback<String?> {
                 override fun onResponse(call: Call<String?>, response: Response<String?>) { }
 
