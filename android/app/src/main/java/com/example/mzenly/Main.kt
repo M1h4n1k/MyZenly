@@ -1,7 +1,10 @@
 package com.example.mzenly
 
 import android.annotation.SuppressLint
+import android.location.Address
+import android.os.Build
 import android.util.Log
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -25,17 +28,23 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeJoin
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -43,6 +52,7 @@ import androidx.navigation.compose.rememberNavController
 import com.example.mzenly.ui.theme.MZenlyTheme
 import com.example.mzenly.ui.theme.roundedSansFamily
 import com.google.android.gms.maps.model.CameraPosition
+import com.google.android.gms.maps.model.MapStyleOptions
 import com.google.maps.android.compose.GoogleMap
 import com.google.maps.android.compose.MapProperties
 import com.google.maps.android.compose.MapType
@@ -108,19 +118,41 @@ private fun PlaceHeader(place: String){
 }
 
 
-
-
+@RequiresApi(Build.VERSION_CODES.TIRAMISU)
 @SuppressLint("MissingPermission")
 @Composable
-fun Main(navController: NavController){
+fun Main(navController: NavController, mapsViewModel: MapsViewModel = viewModel()){
+    var cityHeader by remember { mutableStateOf("") }
     val cameraPositionState = rememberCameraPositionState {
         position = CameraPosition.fromLatLngZoom(userLocation.value, 17f)
     }
-
+    val context = LocalContext.current
     LaunchedEffect(userLocation.value){
         cameraPositionState.position = CameraPosition.fromLatLngZoom(userLocation.value, 17f)
+
+        mapsViewModel.getMarkerAddressDetails(userLocation.value.latitude, userLocation.value.longitude,
+            context
+        )
     }
 
+    val address by mapsViewModel.addressDetail.collectAsState()
+    // not really cool way, but I don't understand neither how to update userModel from mainActivity
+    // nor how to move the location getting logic outside of the mainActivity
+    LaunchedEffect (address) {
+        if (address is ResponseState.Success){
+            val addressSuccess = (address as ResponseState.Success<Address>).data
+            mzenlyApi
+                .updateUser(UserUpdate(
+                    id = 1,
+                    latitude=userLocation.value.latitude,
+                    longitude=userLocation.value.longitude,
+                    place=addressSuccess.thoroughfare + ", " + addressSuccess.locality
+                ))
+                .enqueue(EmptyCallback())
+            cityHeader = addressSuccess.locality
+            Log.d("MAP", addressSuccess.toString())
+        }
+    }
 
     GoogleMap(
         modifier = Modifier.fillMaxSize(),
@@ -147,7 +179,7 @@ fun Main(navController: NavController){
         )
     }
 
-    PlaceHeader("Tampere")
+    PlaceHeader(cityHeader)
 
     Column (
         modifier = Modifier

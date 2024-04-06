@@ -39,4 +39,4 @@ class Profile(UserCreate):
     visible: bool
     friends: list[User]
     requests: list[User]
-    near: list[User]
+    near: list[User] | None

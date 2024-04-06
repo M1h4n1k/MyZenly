@@ -1,22 +1,31 @@
 package com.example.mzenly
 
 import android.annotation.SuppressLint
+import android.content.Context
 import android.content.IntentSender
 import android.content.pm.PackageManager
+import android.location.Address
+import android.location.Geocoder
 import android.location.Location
+import android.os.Build
 import android.os.Bundle
 import android.os.Looper
 import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.core.app.ActivityCompat
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -32,6 +41,9 @@ import com.google.android.gms.location.LocationSettingsResponse
 import com.google.android.gms.location.SettingsClient
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.tasks.Task
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import java.util.Locale
 
 
 private lateinit var fusedLocationClient: FusedLocationProviderClient
@@ -44,11 +56,13 @@ class MainActivity : ComponentActivity() {
 
     @SuppressLint("MissingPermission")
     private fun startLocationUpdates() {
-        fusedLocationClient.requestLocationUpdates(LocationRequest
-            .Builder(LocationRequest.PRIORITY_HIGH_ACCURACY, 5000)
-            .build(),
-            locationCallback,
-            Looper.getMainLooper())
+        fusedLocationClient.requestLocationUpdates(
+            LocationRequest
+                .Builder(LocationRequest.PRIORITY_HIGH_ACCURACY, 5000)
+                .build(),
+                locationCallback,
+                Looper.getMainLooper()
+        )
     }
 
     override fun onResume() {
@@ -85,16 +99,12 @@ class MainActivity : ComponentActivity() {
                     userLocation.value = LatLng(location.latitude, location.longitude)
             }
 
-
         locationCallback = object : LocationCallback() {
+            @RequiresApi(Build.VERSION_CODES.TIRAMISU)
             override fun onLocationResult(p0: LocationResult) {
                 for (location in p0.locations){
-                    if (location != null){
-                        userLocation.value = LatLng(location.latitude, location.longitude)
-                        mzenlyApi
-                            .updateUser(UserUpdate(id = 1, latitude=location.latitude, longitude=location.longitude))
-                            .enqueue(EmptyCallback())
-                    }
+                    if (location == null) continue
+                    userLocation.value = LatLng(location.latitude, location.longitude)
                 }
             }
         }

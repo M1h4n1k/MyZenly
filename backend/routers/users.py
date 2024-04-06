@@ -42,6 +42,6 @@ def get_user(user_id: int, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail='User not found')
     friends = crud.get_friends(db, user_id)
     requests = crud.get_friend_requests(db, user_id)
-    near = crud.get_near_users(user, db)
+    near = crud.get_near_users(user, db) if user.visible else None
 
     return schemas.Profile(**user.__dict__, friends=friends, requests=requests, near=near)

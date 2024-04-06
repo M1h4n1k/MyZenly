@@ -23,6 +23,7 @@ def haversine_distance(lat1, lon1, lat2, lon2):
 
 
 def get_near_users(user: models.User, db: Session):
+
     return db.query(
         models.User.id,
         models.User.nickname,
@@ -32,7 +33,17 @@ def get_near_users(user: models.User, db: Session):
         models.User.last_update
     ).filter(and_(
         models.User.id != user.id,
-        haversine_distance(models.User.latitude, models.User.longitude, user.latitude, user.longitude) <= 500
+        haversine_distance(models.User.latitude, models.User.longitude, user.latitude, user.longitude) <= 500,
+        models.User.visible == True,
+        ~models.User.id.in_(
+            db.query(models.User.id).join(
+                models.Friendship,
+                or_(
+                    and_(models.Friendship.user1_id == models.User.id, models.Friendship.user2_id == user.id),
+                    and_(models.Friendship.user2_id == models.User.id, models.Friendship.user1_id == user.id)
+                )
+            )
+        ),
     )).all()
 
 
