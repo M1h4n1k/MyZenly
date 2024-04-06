@@ -7,7 +7,7 @@ from sqlalchemy.orm import Session
 router = APIRouter(prefix='/users')
 
 
-@router.post('/', response_model=schemas.Profile, status_code=201)
+@router.post('/', response_model=schemas.User, status_code=201)
 def create_user(user: schemas.UserCreate, db: Session = Depends(get_db)):
     return crud.create_user(db, models.User(**user.dict()))
 
@@ -42,6 +42,6 @@ def get_user(user_id: int, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail='User not found')
     friends = crud.get_friends(db, user_id)
     requests = crud.get_friend_requests(db, user_id)
-    near = crud.get_friend_requests(db, user_id)
+    near = crud.get_near_users(user, db)
 
     return schemas.Profile(**user.__dict__, friends=friends, requests=requests, near=near)

@@ -18,6 +18,10 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.MZenly"
         tools:targetApi="31">
+        <service
+            android:name=".MainActivity"
+            android:foregroundServiceType="location">
+        </service>
         <meta-data android:name="com.google.android.geo.API_KEY" android:value=""/>
         <activity
             android:name=".MainActivity"

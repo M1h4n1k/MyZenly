@@ -43,7 +43,7 @@ fun UserCard(user: Map<String, String>, content: @Composable() () -> Unit) {
                     fontSize = 22.sp,
                 )
                 Text(
-                    text = user.getOrDefault("nickname", ""),
+                    text = user.getOrDefault("last_update", ""),
                     fontSize = 16.sp,
                     color = Color(0xFF9A9A9A)
                 )

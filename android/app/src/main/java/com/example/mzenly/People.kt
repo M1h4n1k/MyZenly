@@ -1,7 +1,10 @@
 package com.example.mzenly
 
 import android.os.Handler
+import android.os.Looper
+import android.util.Log
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -11,6 +14,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
@@ -22,8 +26,11 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -40,11 +47,12 @@ import com.example.mzenly.ui.theme.MZenlyTheme
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
-import java.text.RuleBasedCollator
+import java.util.Timer
+import java.util.TimerTask
 
 
 @Composable
-private fun PeopleBlock(title: String, users: List<Map<String, String>>, actions: @Composable () -> Unit){
+private fun PeopleBlock(title: String, users: MutableList<Map<String, String>>, onRemove: (Int) -> Unit, onAddFriend: (Int) -> Unit = {}){
     // Maybe add swiping logic in future
     Spacer(modifier = Modifier.height(10.dp))
     Text(
@@ -56,7 +64,46 @@ private fun PeopleBlock(title: String, users: List<Map<String, String>>, actions
     Spacer(modifier = Modifier.height(3.dp))
     for (i in users.indices) {
         UserCard(users[i]) {
-            actions()
+            val fid = users[i]["id"]!!.toInt()
+            when (title) {
+                "Requests" -> {
+                    Column (modifier = Modifier.padding(0.dp, 0.dp)) {
+                        ActionButton(
+                            Action("add", Color(0xFF4CCD99)),
+                            onClick = {
+                                mzenlyApi.addFriend(1, fid).enqueue(EmptyCallback())
+                                onAddFriend(i)
+                                onRemove(i)
+                            }
+                        )
+                        ActionButton(
+                            Action("remove", Color(0xFFFF204E)),
+                            onClick = {
+                                mzenlyApi.rejectFriendRequest(1, fid).enqueue(EmptyCallback())
+                                onRemove(i)
+                            }
+                        )
+                    }
+                }
+                "Friends" -> {
+                    ActionButton(
+                        Action("remove", Color(0xFFFF204E)),
+                        onClick = {
+                            mzenlyApi.deleteFriend(1, fid).enqueue(EmptyCallback())
+                            onRemove(i)
+                        }
+                    )
+                }
+                "Near" -> {
+                    ActionButton(
+                        Action("request", Color(0xFFFFC700)),
+                        onClick = {
+                            mzenlyApi.sendFriendRequest(1, fid).enqueue(EmptyCallback())
+                            onRemove(i)
+                        }
+                    )
+                }
+            }
         }
         if (i != users.size - 1) {
             Box (contentAlignment = Alignment.CenterEnd) {
@@ -71,8 +118,8 @@ private fun PeopleBlock(title: String, users: List<Map<String, String>>, actions
 private data class Action(val name: String, val color: Color)
 
 @Composable
-private fun ActionButton(action: Action){
-    Box {
+private fun ActionButton(action: Action, onClick: () -> Unit){
+    Box (modifier = Modifier.clickable { onClick() }) {
         Icon(
             imageVector = Icons.Filled.Person,
             contentDescription = action.name,
@@ -80,13 +127,13 @@ private fun ActionButton(action: Action){
             tint = action.color
         )
         if (action.name == "remove") {
-            Box(modifier = Modifier
-                .size(12.dp, 2.dp)
-                .offset(28.dp, 18.dp)
-                .background(action.color)
+            Box(
+                modifier = Modifier
+                    .size(12.dp, 2.dp)
+                    .offset(28.dp, 18.dp)
+                    .background(action.color)
             )
-        }
-        else {
+        } else {
             Icon(
                 imageVector = Icons.Filled.Add,
                 contentDescription = action.name,
@@ -102,46 +149,67 @@ private fun ActionButton(action: Action){
 
 @Composable
 fun People(navController: NavHostController){
-    val profileData = remember { mutableStateOf<ProfileData?>(null) }
+    var profileData by remember { mutableStateOf<ProfileData?>(null) }
 
-    val call = mzenlyApi.getUser(1)
-    call.enqueue(object : Callback<ProfileData?> {
-        override fun onResponse(call: Call<ProfileData?>, response: Response<ProfileData?>) {
-            if (!response.isSuccessful) return
-            profileData.value = response.body() ?: return
-        }
 
-        override fun onFailure(call: Call<ProfileData?>, t: Throwable) { throw t }
-    })
+    LaunchedEffect(Unit) {
+        val call = mzenlyApi.getUser(1)
+        call.enqueue(object : Callback<ProfileData?> {
+            override fun onResponse(call: Call<ProfileData?>, response: Response<ProfileData?>) {
+                if (!response.isSuccessful) return
+                profileData = response.body() ?: return
+            }
+            override fun onFailure(call: Call<ProfileData?>, t: Throwable) { throw t }
+        })
+    }
+//    profileData.value = ProfileData(
+//        1, "HUY", "PIZDA", "0 0", Date(), false,
+//        listOf(mapOf("nickname" to "123")), listOf(mapOf("nickname" to "123")), listOf(mapOf("nickname" to "123")))
+
 
     Column {
         Header(text = "People", navController = navController)
-        if (profileData.value == null){
-            Row (modifier = Modifier.fillMaxWidth().offset(0.dp, 10.dp), horizontalArrangement = Arrangement.Center){
+        if (profileData == null){
+            Row (modifier = Modifier
+                .fillMaxWidth()
+                .offset(0.dp, 10.dp), horizontalArrangement = Arrangement.Center){
                 CircularProgressIndicator()
             }
             return;
         }
 
-        if (profileData.value!!.requests.isNotEmpty()) {
-            // I intentionally pass actions as a parameter instead of the parenthesis
-            PeopleBlock("Requests", profileData.value!!.requests, actions = {
-                Column {
-                    ActionButton(Action("add", Color(0xFF4CCD99)))
-                    ActionButton(Action("remove", Color(0xFFFF204E)))
+        if (profileData!!.requests.isNotEmpty()) {
+            PeopleBlock("Requests", profileData!!.requests,
+                onRemove = { ind: Int ->
+                    profileData = profileData!!.copy(requests = profileData!!.requests.toMutableList().apply {
+                        removeAt(ind)
+                    })
+                },
+                onAddFriend = { ind: Int ->
+                    profileData = profileData!!.copy(friends = profileData!!.friends.toMutableList().apply {
+                        add(profileData!!.requests[ind])
+                    })
                 }
-            })
+            )
             Spacer(modifier = Modifier.height(10.dp))
         }
-        if (profileData.value!!.friends.isNotEmpty()) {
-            PeopleBlock("Friends", profileData.value!!.friends, actions = {
-                ActionButton(Action("remove", Color(0xFFFF204E)))
-            })
+        if (profileData!!.friends.isNotEmpty()) {
+            PeopleBlock(
+                "Friends", profileData!!.friends,
+                onRemove = { ind: Int ->
+                    profileData =
+                        profileData!!.copy(friends = profileData!!.friends.toMutableList().apply {
+                            removeAt(ind)
+                        })
+                },
+            )
             Spacer(modifier = Modifier.height(10.dp))
         }
-        if (profileData.value!!.near.isNotEmpty()) {
-            PeopleBlock("Near", profileData.value!!.near, actions = {
-                ActionButton(Action("request", Color(0xFFFFC700)))
+        if (profileData!!.near.isNotEmpty()) {
+            PeopleBlock("Near", profileData!!.near, onRemove = { ind: Int ->
+                profileData = profileData!!.copy(near = profileData!!.near.toMutableList().apply {
+                    removeAt(ind)
+                })
             })
         }
     }

@@ -1,5 +1,7 @@
 package com.example.mzenly
 
+import android.annotation.SuppressLint
+import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -22,18 +24,16 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeJoin
-import androidx.compose.ui.graphics.TileMode
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
@@ -43,7 +43,6 @@ import androidx.navigation.compose.rememberNavController
 import com.example.mzenly.ui.theme.MZenlyTheme
 import com.example.mzenly.ui.theme.roundedSansFamily
 import com.google.android.gms.maps.model.CameraPosition
-import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.compose.GoogleMap
 import com.google.maps.android.compose.MapProperties
 import com.google.maps.android.compose.MapType
@@ -109,12 +108,19 @@ private fun PlaceHeader(place: String){
 }
 
 
+
+
+@SuppressLint("MissingPermission")
 @Composable
 fun Main(navController: NavController){
-    val tampere = LatLng(61.5, 23.76)
     val cameraPositionState = rememberCameraPositionState {
-        position = CameraPosition.fromLatLngZoom(tampere, 17f)
+        position = CameraPosition.fromLatLngZoom(userLocation.value, 17f)
     }
+
+    LaunchedEffect(userLocation.value){
+        cameraPositionState.position = CameraPosition.fromLatLngZoom(userLocation.value, 17f)
+    }
+
 
     GoogleMap(
         modifier = Modifier.fillMaxSize(),
@@ -128,14 +134,14 @@ fun Main(navController: NavController){
         */
 //        googleMapOptionsFactory = { GoogleMapOptions().mapId("b68aea34d834a746") },
         properties = MapProperties(
-            mapType = MapType.TERRAIN,  // in emulator the roads are black if I use normal type
+            mapType = MapType.NORMAL,  // in emulator the roads are black if I use normal type
             isBuildingEnabled = true,
             isIndoorEnabled = true,
             ),
         uiSettings = MapUiSettings()
     ) {
         Marker(
-            state = MarkerState(position = tampere),
+            state = MarkerState(position = userLocation.value),
             title = "You",
             snippet = "You"
         )

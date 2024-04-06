@@ -1,5 +1,5 @@
 from datetime import datetime
-from sqlalchemy import ForeignKey, DateTime, Text, Boolean, func, BIGINT, VARCHAR
+from sqlalchemy import ForeignKey, DateTime, Text, Boolean, func, BIGINT, VARCHAR, Double
 from sqlalchemy.orm import relationship, DeclarativeBase, mapped_column, Mapped
 
 
@@ -13,7 +13,8 @@ class User(Base):
 
     nickname: Mapped[str] = mapped_column(VARCHAR(25), nullable=True)
     place: Mapped[str] = mapped_column(VARCHAR(255), nullable=True)
-    coords: Mapped[str] = mapped_column(VARCHAR(255), nullable=True)
+    latitude: Mapped[float] = mapped_column(Double, nullable=True)
+    longitude: Mapped[float] = mapped_column(Double, nullable=True)
     last_update: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=func.now())
     visible: Mapped[bool] = mapped_column(Boolean, default=False)
 
@@ -24,7 +25,7 @@ class User(Base):
                 f"nickname={self.nickname!r}, "
                 f"join_date={self.join_date!r},"
                 f"place={self.place!r},"
-                f"coords={self.coords!r},"
+                f"coords=({self.longitude!r},{self.latitude!r}),"
                 f"last_update={self.last_update!r})")
 
 

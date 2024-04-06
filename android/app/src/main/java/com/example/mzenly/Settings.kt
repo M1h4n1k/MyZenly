@@ -70,8 +70,6 @@ private fun ButtonSwitch(text: String, active: Boolean, activeColor: Color, onCl
 }
 
 
-
-
 @Composable
 fun Settings(navController: NavHostController){
     var nickname by remember { mutableStateOf("") }
@@ -84,7 +82,7 @@ fun Settings(navController: NavHostController){
     fun updateInfo(){
         handler.removeCallbacks(runnable)
         runnable = Runnable {
-            val ucall = mzenlyApi.updateUser(UserUpdate(1, nickname, null, null, isVisibleToOthers))
+            val ucall = mzenlyApi.updateUser(UserUpdate(1, visible=isVisibleToOthers))
             ucall.enqueue(object : Callback<String?> {
                 override fun onResponse(call: Call<String?>, response: Response<String?>) { }
 
@@ -96,8 +94,8 @@ fun Settings(navController: NavHostController){
         handler.postDelayed(runnable, 1000)
     }
 
-    val call by remember { mutableStateOf(mzenlyApi.getUser(1)) }
     LaunchedEffect(Unit) {
+        val call = mzenlyApi.getUser(1)
         call.enqueue(object : Callback<ProfileData?> {
             override fun onResponse(call: Call<ProfileData?>, response: Response<ProfileData?>) {
                 if (response.isSuccessful) {

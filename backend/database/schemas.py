@@ -5,14 +5,16 @@ from datetime import datetime
 class UserCreate(BaseModel):
     nickname: str
     place: str
-    coords: str
+    latitude: float = None
+    longitude: float = None
 
 
 class UserUpdate(BaseModel):
     id: int
     nickname: str = None
     place: str = None
-    coords: str = None
+    latitude: float = None
+    longitude: float = None
     visible: bool = None
 
     class Config:
@@ -23,7 +25,8 @@ class User(BaseModel):
     id: int
     nickname: str
     place: str
-    coords: str
+    latitude: float
+    longitude: float
     last_update: datetime
 
     class Config:
