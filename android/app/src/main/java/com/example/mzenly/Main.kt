@@ -121,7 +121,9 @@ private fun PlaceHeader(place: String){
 @RequiresApi(Build.VERSION_CODES.TIRAMISU)
 @SuppressLint("MissingPermission")
 @Composable
-fun Main(navController: NavController, mapsViewModel: MapsViewModel = viewModel()){
+fun Main(navController: NavController,
+         mapsViewModel: MapsViewModel = viewModel(),
+         userViewModel: UserViewModel = viewModel()){
     var cityHeader by remember { mutableStateOf("") }
     val cameraPositionState = rememberCameraPositionState {
         position = CameraPosition.fromLatLngZoom(userLocation.value, 17f)
@@ -139,18 +141,14 @@ fun Main(navController: NavController, mapsViewModel: MapsViewModel = viewModel(
     // not really cool way, but I don't understand neither how to update userModel from mainActivity
     // nor how to move the location getting logic outside of the mainActivity
     LaunchedEffect (address) {
-        if (address is ResponseState.Success){
+        if (address is ResponseState.Success && userLocation != null){
             val addressSuccess = (address as ResponseState.Success<Address>).data
-            mzenlyApi
-                .updateUser(UserUpdate(
-                    id = 1,
-                    latitude=userLocation.value.latitude,
-                    longitude=userLocation.value.longitude,
-                    place=addressSuccess.thoroughfare + ", " + addressSuccess.locality
-                ))
-                .enqueue(EmptyCallback())
+            userViewModel.updateUserData(UserUpdate(
+                latitude=userLocation.value.latitude,
+                longitude=userLocation.value.longitude,
+                place=addressSuccess.thoroughfare + ", " + addressSuccess.locality
+            ), context)
             cityHeader = addressSuccess.locality
-            Log.d("MAP", addressSuccess.toString())
         }
     }
 

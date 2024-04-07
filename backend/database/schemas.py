@@ -2,20 +2,16 @@ from pydantic import BaseModel
 from datetime import datetime
 
 
-class UserCreate(BaseModel):
-    nickname: str
-    place: str
-    latitude: float = None
-    longitude: float = None
+class UserUpdateIn(BaseModel):
+    nickname: str | None = None
+    place: str | None = None
+    latitude: float | None = None
+    longitude: float | None = None
+    visible: bool | None = None
 
 
-class UserUpdate(BaseModel):
+class UserUpdate(UserUpdateIn):
     id: int
-    nickname: str = None
-    place: str = None
-    latitude: float = None
-    longitude: float = None
-    visible: bool = None
 
     class Config:
         from_attributes = True
@@ -33,8 +29,12 @@ class User(BaseModel):
         from_attributes = True
 
 
-class Profile(UserCreate):
+class Profile(BaseModel):
     id: int
+    nickname: str
+    place: str | None = None
+    latitude: float | None = None
+    longitude: float | None = None
     last_update: datetime
     visible: bool
     friends: list[User]

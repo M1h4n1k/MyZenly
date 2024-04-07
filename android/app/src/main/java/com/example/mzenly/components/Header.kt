@@ -27,24 +27,26 @@ import androidx.navigation.compose.rememberNavController
 
 
 @Composable
-fun Header(text: String, navController: NavController) {
+fun Header(text: String, navController: NavController?) {
     Box(modifier = Modifier
         .fillMaxWidth()
         .background(MaterialTheme.colorScheme.primary)
         .padding(0.dp, 10.dp),
     ) {
-        IconButton(
-            modifier = Modifier
-                .size(55.dp)
-                .padding(0.dp),
-            onClick = { navController.popBackStack() },
-            colors = IconButtonDefaults.filledIconButtonColors()
-        ) {
-            Icon(
-                imageVector = Icons.Filled.ArrowBack,
-                contentDescription = "Back",
-                modifier = Modifier.size(55.dp).padding(5.dp)
-            )
+        if (navController != null) {
+            IconButton(
+                modifier = Modifier
+                    .size(55.dp)
+                    .padding(0.dp),
+                onClick = { navController.popBackStack() },
+                colors = IconButtonDefaults.filledIconButtonColors()
+            ) {
+                Icon(
+                    imageVector = Icons.Filled.ArrowBack,
+                    contentDescription = "Back",
+                    modifier = Modifier.size(55.dp).padding(5.dp)
+                )
+            }
         }
         Row (Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically,

@@ -82,6 +82,7 @@ private fun PeopleBlock(
     users: MutableList<Map<String, String>>,
     userViewModel: UserViewModel = viewModel(),
     ){
+    val context = LocalContext.current
     // Maybe add swiping logic in future
     Spacer(modifier = Modifier.height(10.dp))
     Text(
@@ -101,24 +102,24 @@ private fun PeopleBlock(
                     Column (modifier = Modifier.padding(0.dp, 0.dp)) {
                         ActionButton(
                             Action("add", Color(0xFF4CCD99)),
-                            onClick = { userViewModel.acceptFriendRequest(i) }
+                            onClick = { userViewModel.acceptFriendRequest(i, context) }
                         )
                         ActionButton(
                             Action("remove", Color(0xFFFF204E)),
-                            onClick = { userViewModel.rejectFriendRequest(i) }
+                            onClick = { userViewModel.rejectFriendRequest(i, context) }
                         )
                     }
                 }
                 "Friends" -> {
                     ActionButton(
                         Action("remove", Color(0xFFFF204E)),
-                        onClick = { userViewModel.deleteFriend(i) }
+                        onClick = { userViewModel.deleteFriend(i, context) }
                     )
                 }
                 "Near" -> {
                     ActionButton(
                         Action("request", Color(0xFFFFC700)),
-                        onClick = { userViewModel.sendFriendRequest(i) }
+                        onClick = { userViewModel.sendFriendRequest(i, context) }
                     )
                 }
             }
@@ -135,7 +136,6 @@ private fun PeopleBlock(
 
 @Composable
 fun People(navController: NavHostController, userViewModel: UserViewModel = viewModel()){
-
     val profileDataRaw by userViewModel.userData.collectAsState()
     val context = LocalContext.current
     LaunchedEffect(Unit){

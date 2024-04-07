@@ -42,7 +42,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.mzenly.components.MyTextField
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -71,82 +75,54 @@ private fun ButtonSwitch(text: String, active: Boolean, activeColor: Color, onCl
 
 
 @Composable
-fun Settings(navController: NavHostController){
-    var nickname by remember { mutableStateOf("") }
-    var isVisibleToOthers by remember { mutableStateOf(false) }
-    var loading by remember { mutableStateOf(true) }
+fun Settings(navController: NavHostController, userViewModel: UserViewModel = viewModel()){
+    val profileDataRaw by userViewModel.userData.collectAsState()
+
+    val context = LocalContext.current
+    LaunchedEffect(Unit){
+        userViewModel.loadUserData(context)
+    }
+
+    Column {
+        Header(text = "Settings", navController = navController)
+        if (profileDataRaw !is ResponseState.Success){
+            Row (modifier = Modifier
+                .fillMaxWidth()
+                .offset(0.dp, 10.dp), horizontalArrangement=Arrangement.Center){
+                CircularProgressIndicator()
+            }
+            return;
+        }
+    }
 
     val handler by remember { mutableStateOf(Handler()) }
     var runnable by remember { mutableStateOf(Runnable {}) }
+    var profileData by remember { mutableStateOf((profileDataRaw as ResponseState.Success<ProfileData>).data) }
 
     fun updateInfo(){
         handler.removeCallbacks(runnable)
         runnable = Runnable {
-            val ucall = mzenlyApi.updateUser(UserUpdate(1, nickname=nickname, visible=isVisibleToOthers))
-            ucall.enqueue(object : Callback<String?> {
-                override fun onResponse(call: Call<String?>, response: Response<String?>) { }
-
-                override fun onFailure(call: Call<String?>, t: Throwable) {
-                    throw t
-                }
-            })
+            userViewModel.updateUserData(
+                UserUpdate(nickname=profileData.nickname, visible=profileData.visible),
+                context
+            )
         }
         handler.postDelayed(runnable, 1000)
-    }
-
-    LaunchedEffect(Unit) {
-        val call = mzenlyApi.getUser()
-        call.enqueue(object : Callback<ProfileData?> {
-            override fun onResponse(call: Call<ProfileData?>, response: Response<ProfileData?>) {
-                if (response.isSuccessful) {
-                    val retrievedData = response.body() ?: return
-                    nickname = retrievedData.nickname
-                    isVisibleToOthers = retrievedData.visible
-                    loading = false
-                }
-            }
-
-            override fun onFailure(call: Call<ProfileData?>, t: Throwable) {
-                throw t
-            }
-        })
     }
 
 
     Column {
         Header(text = "Settings", navController = navController)
-        if (loading){
-            Row (modifier = Modifier.fillMaxWidth().offset(0.dp, 10.dp), horizontalArrangement=Arrangement.Center){
-                CircularProgressIndicator()
-            }
-            return;
-        }
         Column (Modifier.padding(15.dp, 8.dp)) {
             Text(
                 text = "Nickname",
                 fontSize = 22.sp,
                 color = MaterialTheme.colorScheme.primary,
             )
-            Row (modifier = Modifier
-                .fillMaxWidth()
-                .padding(20.dp, 0.dp)) {
-                OutlinedTextField(  // TODO increase border width
-                    modifier = Modifier.fillMaxWidth(),
-                    value = nickname,
-                    onValueChange = {
-                        nickname = it
-                        updateInfo()
-                    },
-                    label = { },
-                    singleLine = true,
-                    textStyle = TextStyle(fontSize = 36.sp, fontFamily = roundedSansFamily),
-                    shape = RoundedCornerShape(15.dp),
-                    colors = TextFieldDefaults.colors(
-                        focusedContainerColor = Color.White,
-                        unfocusedContainerColor = Color.White
-                    ),
-                )
-            }
+            MyTextField(vv = profileData.nickname, onValueChange = {
+                profileData = profileData.copy(nickname = it)
+                updateInfo()
+            })
             
             Spacer(modifier = Modifier.height(30.dp))
 
@@ -164,19 +140,19 @@ fun Settings(navController: NavHostController){
             ) {
                 ButtonSwitch(
                     "No",
-                    !isVisibleToOthers,
+                    !profileData.visible,
                     Color(0xFFFF204E),
                     onClick={
-                        isVisibleToOthers = false
+                        profileData = profileData.copy(visible = false)
                         updateInfo()
                     }
                 )
                 ButtonSwitch(
                     "Yes",  // is it better to pass text in the curly parenthesis?
-                    isVisibleToOthers,
+                    profileData.visible,
                     Color(0xFF4CCD99),
                     onClick={
-                        isVisibleToOthers = true
+                        profileData = profileData.copy(visible = true)
                         updateInfo()
                     }
                 )
