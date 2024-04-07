@@ -23,7 +23,6 @@ def haversine_distance(lat1, lon1, lat2, lon2):
 
 
 def get_near_users(user: models.User, db: Session):
-
     return db.query(
         models.User.id,
         models.User.nickname,
@@ -47,8 +46,12 @@ def get_near_users(user: models.User, db: Session):
     )).all()
 
 
-def get_user(db: Session, user_id: int):
-    return db.query(models.User).filter(models.User.id == user_id).first()
+def get_user_by_token(db: Session, token: str):
+    return db.query(models.User).filter(models.User.token == token).first()
+
+
+def get_user_by_id(db: Session, user_id: int):
+    return db.query(models.User.id).filter(models.User.id == user_id).first()
 
 
 def update_user(db: Session, user: schemas.UserUpdate):
@@ -106,6 +109,7 @@ def is_friend(db: Session, user1_id: int, user2_id: int):
             and_(models.Friendship.user1_id == user2_id, models.Friendship.user2_id == user1_id)
         )
     ).first()
+
 
 def get_friends(db: Session, user_id: int):
     return db.query(

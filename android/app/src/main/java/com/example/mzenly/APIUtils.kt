@@ -6,6 +6,8 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
+import okhttp3.Interceptor
+import okhttp3.OkHttpClient
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -14,6 +16,7 @@ import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.Body
 import retrofit2.http.DELETE
 import retrofit2.http.GET
+import retrofit2.http.Header
 import retrofit2.http.Headers
 import retrofit2.http.POST
 import retrofit2.http.PUT
@@ -28,8 +31,36 @@ val gson: Gson = GsonBuilder()
     .setDateFormat("yyyy-MM-dd'T'HH:mm:ss")
     .create()
 
+class APIServiceInterceptor : Interceptor {
+
+    var token : String = "a307764ea9b5e440c716ff494561801ba2b421c48552a8f2c7783557e5484b88";
+
+    fun Token(token: String) {
+        this.token = token;
+    }
+x
+    override fun intercept(chain: Interceptor.Chain): okhttp3.Response {
+        var request = chain.request()
+
+        if(request.header("No-Authentication") == null){
+            val finalToken = token
+            request = request.newBuilder()
+                .addHeader("Authorization", finalToken)
+                .build()
+
+        }
+        return chain.proceed(request)
+    }
+
+}
+
+val client: OkHttpClient = OkHttpClient.Builder()
+    .addInterceptor(APIServiceInterceptor())
+    .build()
+
 val rtf: Retrofit = Retrofit.Builder()
     .baseUrl(API_URL)
+    .client(client)
     .addConverterFactory(GsonConverterFactory.create(gson))
     .build()
 
@@ -52,24 +83,10 @@ data class ProfileData (
     val visible: Boolean,
 
     val friends: MutableList<Map<String, String>>,
-    val near: MutableList<Map<String, String>>,
+    val near: MutableList<Map<String, String>>?,
     val requests: MutableList<Map<String, String>>,
 )
 
-class ProfileViewModel : ViewModel() {
-    private val _profileData = MutableLiveData<ProfileData>()
-    val profileData: LiveData<ProfileData> = _profileData
-
-    fun update(pd: ProfileData) {
-        _profileData.value = pd
-    }
-
-    fun removeFriend(ind: Int){
-        _profileData.value!!.friends.removeAt(ind)
-    }
-
-
-}
 
 class EmptyCallback<T> : Callback<T> {
     override fun onResponse(call: Call<T>, response: Response<T>) {
@@ -80,24 +97,24 @@ class EmptyCallback<T> : Callback<T> {
 }
 
 interface APIService {
-    @GET("users/{user_id}")
-    fun getUser(@Path("user_id") userId: Int): Call<ProfileData>
+    @GET("users/")
+    fun getUser(): Call<ProfileData>
 
     @PUT("users/")
     fun updateUser(@Body user: UserUpdate): Call<String>
 
     @DELETE("friends/")
-    fun deleteFriend(@Query("user1_id") user1Id: Int, @Query("user2_id") user2Id: Int): Call<String>
+    fun deleteFriend(@Query("user_to_id") user2Id: Int): Call<String>
 
     @POST("friends/")
-    fun addFriend(@Query("user1_id") user1Id: Int, @Query("user2_id") user2Id: Int): Call<String>
+    fun addFriend(@Query("user_to_id") user2Id: Int): Call<String>
 
     @POST("friends/requests/")
-    fun sendFriendRequest(@Query("user_from") userFrom: Int, @Query("user_to") userTo: Int): Call<String>
+    fun sendFriendRequest(@Query("user_to") userTo: Int): Call<String>
 
 
     @DELETE("friends/requests/")
-    fun rejectFriendRequest(@Query("user_from") userFrom: Int, @Query("user_to") userTo: Int): Call<String>
+    fun rejectFriendRequest(@Query("user_to") userTo: Int): Call<String>
 
 }
 

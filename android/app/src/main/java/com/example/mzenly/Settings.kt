@@ -95,7 +95,7 @@ fun Settings(navController: NavHostController){
     }
 
     LaunchedEffect(Unit) {
-        val call = mzenlyApi.getUser(1)
+        val call = mzenlyApi.getUser()
         call.enqueue(object : Callback<ProfileData?> {
             override fun onResponse(call: Call<ProfileData?>, response: Response<ProfileData?>) {
                 if (response.isSuccessful) {

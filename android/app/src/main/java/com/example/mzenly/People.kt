@@ -2,8 +2,10 @@ package com.example.mzenly
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -140,9 +142,9 @@ fun People(navController: NavHostController, userViewModel: UserViewModel = view
         userViewModel.loadUserData(context)
     }
     if (profileDataRaw !is ResponseState.Success){
-        Column {
+        Column (horizontalAlignment = Alignment.CenterHorizontally) {
             Header(text = "People", navController = navController)
-            CircularProgressIndicator()
+            CircularProgressIndicator(modifier = Modifier.offset(0.dp, 10.dp))
         }
         return
     }
@@ -164,7 +166,16 @@ fun People(navController: NavHostController, userViewModel: UserViewModel = view
             PeopleBlock("Friends", profileData.friends)
             Spacer(modifier = Modifier.height(10.dp))
         }
-        if (profileData.near.isNotEmpty()) {
+        if (profileData.near == null){
+            Text("Near", color = Color(0xFF686868), fontSize = 20.sp, modifier = Modifier.offset(15.dp))
+            Row (
+                horizontalArrangement = Arrangement.Center,
+                modifier = Modifier.fillMaxWidth().padding(20.dp, 0.dp)
+            ){
+                Text("To see users near change it in settings", fontSize = 20.sp)
+                // maybe add button to settings or smth
+            }
+        } else if (profileData.near.isNotEmpty()) {
             PeopleBlock("Near", profileData.near)
         }
     }

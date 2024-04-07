@@ -21,7 +21,7 @@ class UserViewModel : ViewModel() {
     }
 
     fun loadUserData(context: Context) {
-        val call = mzenlyApi.getUser(1)
+        val call = mzenlyApi.getUser()
         call.enqueue(object : Callback<ProfileData> {
             override fun onResponse(call: Call<ProfileData>, response: Response<ProfileData>) {
                 if (!response.isSuccessful) return
@@ -45,12 +45,12 @@ class UserViewModel : ViewModel() {
         )
         _userData.value = ResponseState.Success(ud)
 
-        mzenlyApi.addFriend(1, requestedUser["id"]!!.toInt()).enqueue(EmptyCallback())
+        mzenlyApi.addFriend(requestedUser["id"]!!.toInt()).enqueue(EmptyCallback())
     }
 
     fun rejectFriendRequest(ind: Int){
         val pd = (_userData.value as ResponseState.Success<ProfileData>).data
-        mzenlyApi.rejectFriendRequest(1, pd.requests[ind]["id"]!!.toInt()).enqueue(EmptyCallback())
+        mzenlyApi.rejectFriendRequest(pd.requests[ind]["id"]!!.toInt()).enqueue(EmptyCallback())
 
         val ud = pd.copy(
             requests = pd.requests.toMutableList().apply {
@@ -62,7 +62,7 @@ class UserViewModel : ViewModel() {
 
     fun deleteFriend(ind: Int){
         val pd = (_userData.value as ResponseState.Success<ProfileData>).data
-        mzenlyApi.deleteFriend(1, pd.friends[ind]["id"]!!.toInt()).enqueue(EmptyCallback())
+        mzenlyApi.deleteFriend(pd.friends[ind]["id"]!!.toInt()).enqueue(EmptyCallback())
         val ud = pd.copy(
             friends = pd.friends.toMutableList().apply {
                 removeAt(ind)
@@ -73,7 +73,7 @@ class UserViewModel : ViewModel() {
 
     fun sendFriendRequest(ind: Int){
         val pd = (_userData.value as ResponseState.Success<ProfileData>).data
-        mzenlyApi.sendFriendRequest(1, pd.near[ind]["id"]!!.toInt()).enqueue(EmptyCallback())
+        mzenlyApi.sendFriendRequest(pd.near!![ind]["id"]!!.toInt()).enqueue(EmptyCallback())
         val ud = pd.copy(
             near = pd.near.toMutableList().apply {
                 removeAt(ind)

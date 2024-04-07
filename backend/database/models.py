@@ -17,6 +17,7 @@ class User(Base):
     longitude: Mapped[float] = mapped_column(Double, nullable=True)
     last_update: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=func.now())
     visible: Mapped[bool] = mapped_column(Boolean, default=False)
+    token: Mapped[str] = mapped_column(VARCHAR(64), nullable=True, unique=True)
 
     join_date: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=func.now())
 
