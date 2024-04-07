@@ -58,7 +58,7 @@ fun getFormattedTimeDiff(nowDate: Date, userDate: Date): String {
 }
 
 @Composable
-fun UserCard(user: Map<String, String?>, content: @Composable() () -> Unit) {
+fun UserCard(user: Map<String, Any>, content: @Composable() () -> Unit) {
     Row(modifier = Modifier
         .fillMaxWidth()
         .height(90.dp)
@@ -80,7 +80,7 @@ fun UserCard(user: Map<String, String?>, content: @Composable() () -> Unit) {
                 )
                 val nowDate = Date()
                 val formatter = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss")
-                val userDate = formatter.parse(user.getOrDefault("last_update", Date().toString())!!)
+                val userDate = formatter.parse(user.getOrDefault("last_update", Date()).toString())
 
                 Text(
                     text = getFormattedTimeDiff(userDate!!, nowDate),

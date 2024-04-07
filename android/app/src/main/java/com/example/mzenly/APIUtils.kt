@@ -49,9 +49,9 @@ data class ProfileData (
     val last_update: Date,
     val visible: Boolean,
 
-    val friends: MutableList<Map<String, String?>>,
-    val near: MutableList<Map<String, String?>>?,
-    val requests: MutableList<Map<String, String?>>,
+    val friends: MutableList<Map<String, Any>>,
+    val near: MutableList<Map<String, Any>>?,
+    val requests: MutableList<Map<String, Any>>,
 )
 
 

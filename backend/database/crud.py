@@ -43,6 +43,15 @@ def get_near_users(user: models.User, db: Session):
                 )
             )
         ),
+        ~models.User.id.in_(
+            db.query(models.User.id).join(
+                models.FriendRequest,
+                or_(
+                    and_(models.FriendRequest.user_from == models.User.id, models.FriendRequest.user_to == user.id),
+                    and_(models.FriendRequest.user_from == user.id, models.FriendRequest.user_to == models.User.id)
+                )
+            )
+        ),
     )).all()
 
 

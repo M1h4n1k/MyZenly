@@ -19,6 +19,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Place
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -41,6 +42,7 @@ import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -52,12 +54,14 @@ import androidx.navigation.compose.rememberNavController
 import com.example.mzenly.ui.theme.MZenlyTheme
 import com.example.mzenly.ui.theme.roundedSansFamily
 import com.google.android.gms.maps.model.CameraPosition
+import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MapStyleOptions
 import com.google.maps.android.compose.GoogleMap
 import com.google.maps.android.compose.MapProperties
 import com.google.maps.android.compose.MapType
 import com.google.maps.android.compose.MapUiSettings
 import com.google.maps.android.compose.Marker
+import com.google.maps.android.compose.MarkerComposable
 import com.google.maps.android.compose.MarkerState
 import com.google.maps.android.compose.rememberCameraPositionState
 
@@ -154,6 +158,10 @@ fun Main(navController: NavController,
         }
     }
 
+    val profileDataRaw by userViewModel.userData.collectAsState()
+    LaunchedEffect(Unit){ userViewModel.loadUserData(context) }
+
+
     GoogleMap(
         modifier = Modifier.fillMaxSize(),
         cameraPositionState = cameraPositionState,
@@ -166,17 +174,45 @@ fun Main(navController: NavController,
         */
 //        googleMapOptionsFactory = { GoogleMapOptions().mapId("b68aea34d834a746") },
         properties = MapProperties(
-            mapType = MapType.NORMAL,  // in emulator the roads are black if I use normal type
+            mapType = MapType.NORMAL,  // in emulator the roads are black if using normal type
             isBuildingEnabled = true,
             isIndoorEnabled = true,
             ),
         uiSettings = MapUiSettings()
     ) {
-        Marker(
-            state = MarkerState(position = userLocation.value),
-            title = "You",
-            snippet = "You"
-        )
+        MarkerComposable(state = MarkerState(position = userLocation.value)) {
+            Column (horizontalAlignment = Alignment.CenterHorizontally) {
+                Text("You", fontFamily = roundedSansFamily, fontSize = 22.sp)
+                Icon(
+                    imageVector = Icons.Filled.Place,
+                    contentDescription = "Philippines",
+                    tint = Color.Red,
+                    modifier = Modifier.size(64.dp)
+                )
+            }
+        }
+        if (profileDataRaw is ResponseState.Success<ProfileData>){
+            val profileData by remember { mutableStateOf((profileDataRaw as ResponseState.Success<ProfileData>).data) }
+            for (f in profileData.friends){  // For future development clustering would be nice
+                MarkerComposable(
+                    state = MarkerState(position = LatLng(f["latitude"] as Double, f["longitude"] as Double))
+                ) {
+                    Column (horizontalAlignment = Alignment.CenterHorizontally) {
+                        Text(
+                            f["nickname"] as String,
+                            fontFamily = roundedSansFamily,
+                            fontSize = 22.sp
+                        )
+                        Icon(
+                            imageVector = Icons.Filled.Place,
+                            contentDescription = "Philippines",
+                            tint = Color.Blue,
+                            modifier = Modifier.size(64.dp)
+                        )
+                    }
+                }
+            }
+        }
     }
 
     PlaceHeader(cityHeader)
