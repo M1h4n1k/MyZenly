@@ -49,9 +49,9 @@ data class ProfileData (
     val last_update: Date,
     val visible: Boolean,
 
-    val friends: MutableList<Map<String, String>>,
-    val near: MutableList<Map<String, String>>?,
-    val requests: MutableList<Map<String, String>>,
+    val friends: MutableList<Map<String, String?>>,
+    val near: MutableList<Map<String, String?>>?,
+    val requests: MutableList<Map<String, String?>>,
 )
 
 
@@ -84,7 +84,7 @@ interface APIService {
 
 
     @DELETE("friends/requests/")
-    fun rejectFriendRequest(@Header("Authorization") authorization: String, @Query("user_to") userTo: Int): Call<String>
+    fun rejectFriendRequest(@Header("Authorization") authorization: String, @Query("user_from") userFrom: Int): Call<String>
 
 }
 

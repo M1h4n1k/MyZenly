@@ -13,8 +13,8 @@ router.include_router(friend_near_router)
 
 
 @router.get('/', response_model=list[schemas.User])
-def get_friends(user_id: int, db: Session = Depends(get_db)):
-    return crud.get_friends(db, user_id)
+def get_friends(user: models.User = Depends(get_user_dependency), db: Session = Depends(get_db)):
+    return crud.get_friends(db, user.id)
 
 
 @router.post(

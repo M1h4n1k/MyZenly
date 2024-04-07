@@ -195,12 +195,11 @@ fun CreateUserForm(userViewModel: UserViewModel = viewModel()){
 fun App(userViewModel: UserViewModel = viewModel()) {
     val navController = rememberNavController()
     val context = LocalContext.current
-    LaunchedEffect(Unit){
-        userViewModel.getToken(context)
-    }
+    userViewModel.getToken(context)
     val tokenRaw = userViewModel.token.collectAsState()
-    Log.d("TOKEB", tokenRaw.toString())
+    Log.d("TOKEB", tokenRaw.value.toString())
     if (tokenRaw.value == null){
+        Log.d("TOKEB_IN", tokenRaw.value.toString())
         CreateUserForm()
         return
     }

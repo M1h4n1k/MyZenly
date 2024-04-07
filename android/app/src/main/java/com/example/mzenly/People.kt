@@ -79,7 +79,7 @@ private fun ActionButton(action: Action, onClick: () -> Unit){
 @Composable
 private fun PeopleBlock(
     title: String,
-    users: MutableList<Map<String, String>>,
+    users: MutableList<Map<String, String?>>,
     userViewModel: UserViewModel = viewModel(),
     ){
     val context = LocalContext.current

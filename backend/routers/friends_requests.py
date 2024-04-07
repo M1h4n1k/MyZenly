@@ -9,8 +9,8 @@ router = APIRouter(prefix='/requests')
 
 
 @router.get('/', response_model=list[schemas.User], status_code=200)
-def get_friend_requests(user_id: int, db: Session = Depends(get_db)):
-    return crud.get_friend_requests(db, user_id)
+def get_friend_requests(user: models.User = Depends(get_user_dependency), db: Session = Depends(get_db)):
+    return crud.get_friend_requests(db, user.id)
 
 
 def haversine_distance(lat1, lon1, lat2, lon2):
@@ -20,7 +20,6 @@ def haversine_distance(lat1, lon1, lat2, lon2):
     a = (dlat / 2) ** 2 + cos(lat1) * cos(lat2) * (dlon / 2) ** 2
     c = 2 * atan2(sqrt(a), sqrt(1 - a))
     return c * EARTH_RADIUS
-
 
 
 @router.post(
@@ -63,8 +62,8 @@ def request_friend(user_to: int, user: models.User = Depends(get_user_dependency
         404: {'description': 'Friend request not found'},
     }
 )
-def delete_friend_request(user_to: int, user: models.User = Depends(get_user_dependency), db: Session = Depends(get_db)):
-    if not crud.get_request(db, user.id, user_to):
+def reject_friend_request(user_from: int, user: models.User = Depends(get_user_dependency), db: Session = Depends(get_db)):
+    if not crud.get_request(db, user_from, user.id):
         raise HTTPException(status_code=404, detail='Friend request not found')
-    crud.delete_friend_request(db, user.id, user_to)
+    crud.delete_friend_request(db, user_from, user.id)
     return 'OK'

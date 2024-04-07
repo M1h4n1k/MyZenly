@@ -141,14 +141,16 @@ fun Main(navController: NavController,
     // not really cool way, but I don't understand neither how to update userModel from mainActivity
     // nor how to move the location getting logic outside of the mainActivity
     LaunchedEffect (address) {
-        if (address is ResponseState.Success && userLocation != null){
-            val addressSuccess = (address as ResponseState.Success<Address>).data
-            userViewModel.updateUserData(UserUpdate(
-                latitude=userLocation.value.latitude,
-                longitude=userLocation.value.longitude,
-                place=addressSuccess.thoroughfare + ", " + addressSuccess.locality
-            ), context)
-            cityHeader = addressSuccess.locality
+        if (address is ResponseState.Success){
+            val addressSuccess = (address as ResponseState.Success<Address?>).data
+            if (addressSuccess != null){
+                userViewModel.updateUserData(UserUpdate(
+                    latitude=userLocation.value.latitude,
+                    longitude=userLocation.value.longitude,
+                    place=addressSuccess.thoroughfare + ", " + addressSuccess.locality
+                ), context)
+                cityHeader = addressSuccess.locality
+            }
         }
     }
 

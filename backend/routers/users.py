@@ -9,7 +9,7 @@ router = APIRouter(prefix='/users')
 
 
 @router.post('/', response_model=str, status_code=201)
-def create_user(user: schemas.UserCreate, db: Session = Depends(get_db)):
+def create_user(nickname: str, db: Session = Depends(get_db)):
     """
         I feel like it's not a really cool way, but I don't want to overcomplicate it and use some complex
         authorization. There is might be a security issue with catching the token by a 3rd party and using it later
@@ -17,7 +17,7 @@ def create_user(user: schemas.UserCreate, db: Session = Depends(get_db)):
         I will leave it as it is for the sake of simplicity
     """
     token = os.urandom(32).hex()
-    crud.create_user(db, models.User(**user.dict(), token=token))
+    crud.create_user(db, models.User(nickname=nickname, token=token))
     return token
 
 
@@ -29,10 +29,8 @@ def create_user(user: schemas.UserCreate, db: Session = Depends(get_db)):
         404: {'description': 'User not found'}
     }
 )
-def update_user(user_upd: schemas.UserUpdate, user: models.User = Depends(get_user_dependency), db: Session = Depends(get_db)):
-    if user_upd.id != user.id:
-        raise HTTPException(status_code=403, detail='Forbidden')
-    crud.update_user(db, user_upd)
+def update_user(user_upd: schemas.UserUpdateIn, user: models.User = Depends(get_user_dependency), db: Session = Depends(get_db)):
+    crud.update_user(db, schemas.UserUpdate(id=user.id, **user_upd.dict()))
     return 'OK'
 
 

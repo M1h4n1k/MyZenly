@@ -86,14 +86,14 @@ class UserViewModel : ViewModel() {
         )
         _userData.value = ResponseState.Success(ud)
 
-        mzenlyApi.addFriend(_token.value!!, requestedUser["id"]!!.toInt()).enqueue(EmptyCallback())
+        mzenlyApi.addFriend(_token.value!!, requestedUser["id"]!!.toString().toInt()).enqueue(EmptyCallback())
     }
 
     fun rejectFriendRequest(ind: Int, context: Context){
         _token.value = context.getSharedPreferences("MZenlyPrefs", Context.MODE_PRIVATE).getString("TOKEN", "")!!
 
         val pd = (_userData.value as ResponseState.Success<ProfileData>).data
-        mzenlyApi.rejectFriendRequest(_token.value!!, pd.requests[ind]["id"]!!.toInt()).enqueue(EmptyCallback())
+        mzenlyApi.rejectFriendRequest(_token.value!!, pd.requests[ind]["id"]!!.toString().toInt()).enqueue(EmptyCallback())
 
         val ud = pd.copy(
             requests = pd.requests.toMutableList().apply {
@@ -107,7 +107,7 @@ class UserViewModel : ViewModel() {
         _token.value = context.getSharedPreferences("MZenlyPrefs", Context.MODE_PRIVATE).getString("TOKEN", "")!!
 
         val pd = (_userData.value as ResponseState.Success<ProfileData>).data
-        mzenlyApi.deleteFriend(_token.value!!, pd.friends[ind]["id"]!!.toInt()).enqueue(EmptyCallback())
+        mzenlyApi.deleteFriend(_token.value!!, pd.friends[ind]["id"]!!.toString().toInt()).enqueue(EmptyCallback())
         val ud = pd.copy(
             friends = pd.friends.toMutableList().apply {
                 removeAt(ind)
@@ -120,7 +120,7 @@ class UserViewModel : ViewModel() {
         _token.value = context.getSharedPreferences("MZenlyPrefs", Context.MODE_PRIVATE).getString("TOKEN", "")!!
 
         val pd = (_userData.value as ResponseState.Success<ProfileData>).data
-        mzenlyApi.sendFriendRequest(_token.value!!, pd.near!![ind]["id"]!!.toInt()).enqueue(EmptyCallback())
+        mzenlyApi.sendFriendRequest(_token.value!!, pd.near!![ind]["id"]!!.toString().toInt()).enqueue(EmptyCallback())
         val ud = pd.copy(
             near = pd.near.toMutableList().apply {
                 removeAt(ind)

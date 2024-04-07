@@ -51,7 +51,7 @@ def get_user_by_token(db: Session, token: str):
 
 
 def get_user_by_id(db: Session, user_id: int):
-    return db.query(models.User.id).filter(models.User.id == user_id).first()
+    return db.query(models.User).filter(models.User.id == user_id).first()
 
 
 def update_user(db: Session, user: schemas.UserUpdate):

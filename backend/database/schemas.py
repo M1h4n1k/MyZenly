@@ -20,9 +20,9 @@ class UserUpdate(UserUpdateIn):
 class User(BaseModel):
     id: int
     nickname: str
-    place: str
-    latitude: float
-    longitude: float
+    place: str | None = None
+    latitude: float | None = None
+    longitude: float | None = None
     last_update: datetime
 
     class Config:
