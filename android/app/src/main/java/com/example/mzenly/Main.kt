@@ -1,7 +1,11 @@
 package com.example.mzenly
 
+import android.Manifest
 import android.annotation.SuppressLint
+import android.content.Context
 import android.location.Address
+import android.location.Location
+import android.location.LocationManager
 import android.os.Build
 import android.util.Log
 import androidx.annotation.RequiresApi
@@ -53,6 +57,9 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.mzenly.ui.theme.MZenlyTheme
 import com.example.mzenly.ui.theme.roundedSansFamily
+import com.google.accompanist.permissions.ExperimentalPermissionsApi
+import com.google.accompanist.permissions.rememberPermissionState
+import com.google.android.gms.location.LocationListener
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MapStyleOptions
@@ -122,35 +129,55 @@ private fun PlaceHeader(place: String){
 }
 
 
+@RequiresApi(Build.VERSION_CODES.S)
 @SuppressLint("MissingPermission")
 @Composable
-fun Main(navController: NavController,
-         mapsViewModel: MapsViewModel = viewModel(),
-         userViewModel: UserViewModel = viewModel()){
+fun Main(
+    navController: NavController,
+    mapsViewModel: MapsViewModel = viewModel(),
+    userViewModel: UserViewModel = viewModel()
+){
+    val context = LocalContext.current
+    val locationManager = context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
+
+    val lastLocation = locationManager.getLastKnownLocation(LocationManager.FUSED_PROVIDER)
+    if (lastLocation != null)
+        userViewModel.setUserLocation(LatLng(lastLocation.latitude, lastLocation.longitude))
+    val userLocation by userViewModel.userLocation.collectAsState()
     var cityHeader by remember { mutableStateOf("") }
     val cameraPositionState = rememberCameraPositionState {
-        position = CameraPosition.fromLatLngZoom(userLocation.value, 17f)
-    }
-    val context = LocalContext.current
-    LaunchedEffect(userLocation.value){
-        if (cameraPositionState.position.target == LatLng(0.0, 0.0))
-            cameraPositionState.position = CameraPosition.fromLatLngZoom(userLocation.value, 17f)
+        position = if (lastLocation != null)
+            CameraPosition.fromLatLngZoom(LatLng(lastLocation.latitude, lastLocation.longitude), 17f)
+        else
+            CameraPosition.fromLatLngZoom(LatLng(0.0, 0.0), 17f)
 
-        mapsViewModel.getMarkerAddressDetails(userLocation.value.latitude, userLocation.value.longitude,
-            context
-        )
     }
+
+    val locListener = android.location.LocationListener {
+        p0 -> run {
+            userViewModel.setUserLocation(LatLng(p0.latitude, p0.longitude))
+
+            if (cameraPositionState.position.target == LatLng(0.0, 0.0))
+                cameraPositionState.position = CameraPosition.fromLatLngZoom(userLocation, 17f)
+
+            mapsViewModel.getMarkerAddressDetails(userLocation.latitude, userLocation.longitude,
+                context
+            )
+            Log.d("LOC UPD", "${p0.latitude} ${p0.longitude}")
+        }
+    }
+    locationManager.removeUpdates(locListener)
+    locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 5000, 10f, locListener)
 
     val address by mapsViewModel.addressDetail.collectAsState()
-    // not really cool way, but I don't understand neither how to update userModel from mainActivity
-    // nor how to move the location getting logic outside of the mainActivity
+
     LaunchedEffect (address) {
         if (address is ResponseState.Success){
             val addressSuccess = (address as ResponseState.Success<Address>).data
             if (addressSuccess != null){
                 userViewModel.updateUserData(UserUpdate(
-                    latitude=userLocation.value.latitude,
-                    longitude=userLocation.value.longitude,
+                    latitude=userLocation.latitude,
+                    longitude=userLocation.longitude,
                     place=addressSuccess.thoroughfare + ", " + addressSuccess.locality
                 ), context)
                 cityHeader = addressSuccess.locality
@@ -180,7 +207,7 @@ fun Main(navController: NavController,
             ),
         uiSettings = MapUiSettings()
     ) {
-        MarkerComposable(state = MarkerState(position = userLocation.value)) {
+        MarkerComposable(state = MarkerState(position = userLocation)) {
             Column (horizontalAlignment = Alignment.CenterHorizontally) {
                 Text("You", fontFamily = roundedSansFamily, fontSize = 22.sp)
                 Icon(

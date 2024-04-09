@@ -1,10 +1,13 @@
 package com.example.mzenly
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.content.SharedPreferences
 import android.location.Location
+import android.location.LocationManager
 import android.widget.Toast
 import androidx.lifecycle.ViewModel
+import com.google.android.gms.maps.model.LatLng
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import retrofit2.Call
@@ -12,9 +15,10 @@ import retrofit2.Callback
 import retrofit2.Response
 
 
+@SuppressLint("MissingPermission")
 class UserViewModel : ViewModel() {
     private val _userData = MutableStateFlow<ResponseState<ProfileData>>(ResponseState.Idle)
-    private val _userLocation = MutableStateFlow<ResponseState<Location>>(ResponseState.Idle)
+    private val _userLocation = MutableStateFlow(LatLng(0.0, 0.0))
     private var _token = MutableStateFlow<String?>(null);
     val userData = _userData.asStateFlow()
     val token = _token.asStateFlow()
@@ -30,8 +34,8 @@ class UserViewModel : ViewModel() {
         return _token.value
     }
 
-    fun setUserLocation(loc: Location){
-        _userLocation.value = ResponseState.Success(loc)
+    fun setUserLocation(loc: LatLng){
+        _userLocation.value = loc
     }
 
     fun createUser(nickname: String, context: Context){
