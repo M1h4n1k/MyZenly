@@ -3,6 +3,7 @@ package com.example.mzenly
 import android.content.Context
 import android.content.SharedPreferences
 import android.location.Location
+import android.widget.Toast
 import androidx.lifecycle.ViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -43,7 +44,9 @@ class UserViewModel : ViewModel() {
                 _token.value = context.getSharedPreferences("MZenlyPrefs", Context.MODE_PRIVATE).getString("TOKEN", "")!!
                 editor.apply()
             }
-            override fun onFailure(call: Call<String?>, t: Throwable) { throw t }
+            override fun onFailure(call: Call<String?>, t: Throwable) {
+                Toast.makeText(context, "Error: " + t.localizedMessage, Toast.LENGTH_SHORT).show()
+            }
         })
     }
 
@@ -53,8 +56,7 @@ class UserViewModel : ViewModel() {
         _token.value = context.getSharedPreferences("MZenlyPrefs", Context.MODE_PRIVATE).getString("TOKEN", "")!!
 
         val call = mzenlyApi.updateUser(_token.value!!, user)
-        call.enqueue(EmptyCallback())
-
+        call.enqueue(EmptyCallback(context))
     }
 
     fun loadUserData(context: Context) {
@@ -63,10 +65,16 @@ class UserViewModel : ViewModel() {
         val call = mzenlyApi.getUser(_token.value!!)
         call.enqueue(object : Callback<ProfileData> {
             override fun onResponse(call: Call<ProfileData>, response: Response<ProfileData>) {
-                if (!response.isSuccessful) return
+                if (!response.isSuccessful){
+                    Toast.makeText(context, "Error: " + response.raw().toString(), Toast.LENGTH_SHORT).show()
+                    ResponseState.Error(Exception(response.raw().toString()))
+                    return
+                }
                 _userData.value = ResponseState.Success(response.body()!!)
             }
-            override fun onFailure(call: Call<ProfileData?>, t: Throwable) { throw t }
+            override fun onFailure(call: Call<ProfileData?>, t: Throwable) {
+                Toast.makeText(context, "Error: " + t.localizedMessage, Toast.LENGTH_SHORT).show()
+            }
         })
         _userData.value = ResponseState.Loading
     }
@@ -86,14 +94,14 @@ class UserViewModel : ViewModel() {
         )
         _userData.value = ResponseState.Success(ud)
 
-        mzenlyApi.addFriend(_token.value!!, (requestedUser["id"] as Double).toInt()).enqueue(EmptyCallback())
+        mzenlyApi.addFriend(_token.value!!, (requestedUser["id"] as Double).toInt()).enqueue(EmptyCallback(context))
     }
 
     fun rejectFriendRequest(ind: Int, context: Context){
         _token.value = context.getSharedPreferences("MZenlyPrefs", Context.MODE_PRIVATE).getString("TOKEN", "")!!
 
         val pd = (_userData.value as ResponseState.Success<ProfileData>).data
-        mzenlyApi.rejectFriendRequest(_token.value!!, (pd.requests[ind]["id"] as Double).toInt()).enqueue(EmptyCallback())
+        mzenlyApi.rejectFriendRequest(_token.value!!, (pd.requests[ind]["id"] as Double).toInt()).enqueue(EmptyCallback(context))
 
         val ud = pd.copy(
             requests = pd.requests.toMutableList().apply {
@@ -107,7 +115,7 @@ class UserViewModel : ViewModel() {
         _token.value = context.getSharedPreferences("MZenlyPrefs", Context.MODE_PRIVATE).getString("TOKEN", "")!!
 
         val pd = (_userData.value as ResponseState.Success<ProfileData>).data
-        mzenlyApi.deleteFriend(_token.value!!, (pd.friends[ind]["id"] as Double).toInt()).enqueue(EmptyCallback())
+        mzenlyApi.deleteFriend(_token.value!!, (pd.friends[ind]["id"] as Double).toInt()).enqueue(EmptyCallback(context))
         val ud = pd.copy(
             friends = pd.friends.toMutableList().apply {
                 removeAt(ind)
@@ -120,7 +128,7 @@ class UserViewModel : ViewModel() {
         _token.value = context.getSharedPreferences("MZenlyPrefs", Context.MODE_PRIVATE).getString("TOKEN", "")!!
 
         val pd = (_userData.value as ResponseState.Success<ProfileData>).data
-        mzenlyApi.sendFriendRequest(_token.value!!, (pd.near!![ind]["id"] as Double).toInt()).enqueue(EmptyCallback())
+        mzenlyApi.sendFriendRequest(_token.value!!, (pd.near!![ind]["id"] as Double).toInt()).enqueue(EmptyCallback(context))
         val ud = pd.copy(
             near = pd.near.toMutableList().apply {
                 removeAt(ind)

@@ -1,5 +1,6 @@
 package com.example.mzenly
 
+import android.Manifest
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.IntentSender
@@ -17,6 +18,7 @@ import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -55,6 +57,10 @@ import com.example.mzenly.components.Header
 import com.example.mzenly.components.MyTextField
 import com.example.mzenly.ui.theme.MZenlyTheme
 import com.example.mzenly.ui.theme.roundedSansFamily
+import com.google.accompanist.permissions.ExperimentalPermissionsApi
+import com.google.accompanist.permissions.isGranted
+import com.google.accompanist.permissions.rememberPermissionState
+import com.google.accompanist.permissions.shouldShowRationale
 import com.google.android.gms.common.api.ResolvableApiException
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationCallback
@@ -149,47 +155,8 @@ class MainActivity : ComponentActivity() {
     }
 }
 
-@Composable
-fun CreateUserForm(userViewModel: UserViewModel = viewModel()){
-    var nickname by remember { mutableStateOf("") }
-    val context = LocalContext.current
 
-    Column (modifier = Modifier.fillMaxSize(), verticalArrangement = Arrangement.SpaceBetween) {
-        Header("Registration", null)
-        Column(
-            modifier = Modifier
-                .padding(20.dp, 0.dp),
-            verticalArrangement = Arrangement.Center
-        ) {
-            Text(
-                text = "Nickname",
-                fontSize = 22.sp,
-                color = MaterialTheme.colorScheme.primary,
-                modifier = Modifier.offset((-10).dp)
-            )
-            MyTextField(nickname, onValueChange = {
-                nickname = it
-            })
-        }
-        Button(
-            onClick = { userViewModel.createUser(nickname, context) },
-            colors = ButtonDefaults.buttonColors(
-                containerColor = MaterialTheme.colorScheme.primary ,
-                contentColor = Color.White
-            ),
-            shape = RoundedCornerShape(15.dp),
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(70.dp)
-                .offset(0.dp, (-20).dp)
-                .padding(20.dp, 0.dp)
-        ) {
-            Text("Create account", fontSize = 22.sp, fontFamily = roundedSansFamily)
-        }
-    }
-}
-
-
+@OptIn(ExperimentalPermissionsApi::class)
 @Preview
 @Composable
 fun App(userViewModel: UserViewModel = viewModel()) {
@@ -200,9 +167,31 @@ fun App(userViewModel: UserViewModel = viewModel()) {
     Log.d("TOKEB", tokenRaw.value.toString())
     if (tokenRaw.value == null){
         Log.d("TOKEB_IN", tokenRaw.value.toString())
-        CreateUserForm()
+        RegistrationForm()
         return
     }
+
+    val locationPermissionState = rememberPermissionState(Manifest.permission.ACCESS_FINE_LOCATION)
+    if (!locationPermissionState.status.isGranted){
+        val textToShow = if (locationPermissionState.status.shouldShowRationale) {
+            "Precise location is important for this app. Please grant the permission."
+        } else {
+            "Location permission required for this feature to be available. " +
+                    "Please grant the permission"
+        }
+        Column{
+            Header(text = "Permissions", navController = null)
+            Column (modifier = Modifier.padding(20.dp), horizontalAlignment = Alignment.CenterHorizontally){
+                Text(textToShow, fontSize = 20.sp)
+                Spacer(modifier = Modifier.weight(1.0f))
+                Button(onClick = { locationPermissionState.launchPermissionRequest() }) {
+                    Text("Give permission", fontSize = 22.sp, modifier = Modifier.padding(20.dp, 7.dp))
+                }
+            }
+        }
+        return
+    }
+
     NavHost(navController, startDestination = "main") {
         composable("main") {  Main(navController) }
         composable("people") {  People(navController) }

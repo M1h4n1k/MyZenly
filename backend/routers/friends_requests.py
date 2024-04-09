@@ -15,8 +15,8 @@ def get_friend_requests(user: models.User = Depends(get_user_dependency), db: Se
 
 def haversine_distance(lat1, lon1, lat2, lon2):
     EARTH_RADIUS = 6371000
-    dlat = lat2 - lat1
-    dlon = lon2 - lon1
+    dlat = (lat2 - lat1) / 180
+    dlon = (lon2 - lon1) / 180
     a = (dlat / 2) ** 2 + cos(lat1) * cos(lat2) * (dlon / 2) ** 2
     c = 2 * atan2(sqrt(a), sqrt(1 - a))
     return c * EARTH_RADIUS

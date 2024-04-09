@@ -1,6 +1,5 @@
 package com.example.mzenly.components
 
-import android.content.res.Resources
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -20,7 +19,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import java.text.SimpleDateFormat
 import java.util.Date
-import java.util.Locale
 
 
 fun getFormattedTimeDiff(nowDate: Date, userDate: Date): String {
@@ -36,25 +34,20 @@ fun getFormattedTimeDiff(nowDate: Date, userDate: Date): String {
     val value: Long
 
     if (days > 0) {
-        unit = "day"
+        unit = "d"
         value = days
     } else if (hours > 0) {
-        unit = "hour"
+        unit = "h"
         value = hours
     } else if (minutes > 0) {
-        unit = "minute"
+        unit = "min"
         value = minutes
     } else {
-        unit = "second"
+        unit = "sec"
         value = seconds
     }
 
-    val formattedValue = when (value) {
-        1L -> "$value $unit ago"
-        else -> "$value ${unit}s ago"
-    }
-
-    return formattedValue
+    return "$value$unit ago"
 }
 
 @Composable
@@ -83,7 +76,7 @@ fun UserCard(user: Map<String, Any>, content: @Composable() () -> Unit) {
                 val userDate = formatter.parse(user.getOrDefault("last_update", Date()).toString())
 
                 Text(
-                    text = getFormattedTimeDiff(userDate!!, nowDate),
+                    text = getFormattedTimeDiff(nowDate, userDate!!),
                     fontSize = 14.sp,
                     color = Color(0xFF9A9A9A)
                 )

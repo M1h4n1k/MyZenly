@@ -1,7 +1,9 @@
 package com.example.mzenly
 
+import android.content.Context
 import android.content.SharedPreferences
 import android.util.Log
+import android.widget.Toast
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import okhttp3.Interceptor
@@ -55,12 +57,18 @@ data class ProfileData (
 )
 
 
-class EmptyCallback<T> : Callback<T> {
+class EmptyCallback<T> (private val context: Context) : Callback<T> {
     override fun onResponse(call: Call<T>, response: Response<T>) {
         val bodyString = response.raw().toString()
+        if (!response.isSuccessful){  // 200, 201
+            Toast.makeText(context, "Error: $bodyString", Toast.LENGTH_SHORT).show()
+            return
+        }
         Log.e("Retrofit", "Response: $bodyString")
     }
-    override fun onFailure(call: Call<T>, t: Throwable) { }
+    override fun onFailure(call: Call<T>, t: Throwable) {
+        Toast.makeText(context, "Internet error: " + t.localizedMessage, Toast.LENGTH_SHORT).show()
+    }
 }
 
 interface APIService {

@@ -1,6 +1,7 @@
 package com.example.mzenly
 
 import android.os.Handler
+import android.view.HapticFeedbackConstants
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -43,7 +44,10 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalHapticFeedback
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.mzenly.components.MyTextField
@@ -58,9 +62,12 @@ private fun ButtonSwitch(text: String, active: Boolean, activeColor: Color, onCl
         if (active) activeColor else Color(0xFF989898),
         label = "color"
     )
-
+    val view = LocalView.current
     Button(
-        onClick = { onClick() }, // TODO add haptic feedback
+        onClick = {
+            onClick()
+            view.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP)
+                  },
         colors = ButtonDefaults.buttonColors(
             containerColor = animatedColor ,
             contentColor = Color.White

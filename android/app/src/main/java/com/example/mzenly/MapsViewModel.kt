@@ -24,17 +24,24 @@ class MapsViewModel : ViewModel() {
     private val _addressDetail = MutableStateFlow<ResponseState<Address>>(ResponseState.Idle)
     val addressDetail = _addressDetail.asStateFlow()
 
-    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     fun getMarkerAddressDetails(lat: Double, long: Double, context: Context) {
         _addressDetail.value = ResponseState.Loading
         try {
             val geocoder = Geocoder(context, Locale.getDefault())
-            geocoder.getFromLocation(
-                lat,
-                long,
-                1,
-            ) { p0 ->
-                _addressDetail.value = ResponseState.Success(p0[0])
+            // at first I didn't want to support old phones, but I have huawei p20 lite
+            // which wasn't supported, so I was forced to support it
+            if (Build.VERSION.SDK_INT >= 33) {
+                geocoder.getFromLocation(
+                    lat,
+                    long,
+                    1,
+                ) { p0 ->
+                    _addressDetail.value = ResponseState.Success(p0[0])
+                }
+            } else {
+                _addressDetail.value = ResponseState.Success(
+                    geocoder.getFromLocation(lat, long,1)!![0]
+                )
             }
         } catch (e: Exception) {
             _addressDetail.value = ResponseState.Error(e)

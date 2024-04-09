@@ -122,7 +122,6 @@ private fun PlaceHeader(place: String){
 }
 
 
-@RequiresApi(Build.VERSION_CODES.TIRAMISU)
 @SuppressLint("MissingPermission")
 @Composable
 fun Main(navController: NavController,
@@ -134,7 +133,8 @@ fun Main(navController: NavController,
     }
     val context = LocalContext.current
     LaunchedEffect(userLocation.value){
-        cameraPositionState.position = CameraPosition.fromLatLngZoom(userLocation.value, 17f)
+        if (cameraPositionState.position.target == LatLng(0.0, 0.0))
+            cameraPositionState.position = CameraPosition.fromLatLngZoom(userLocation.value, 17f)
 
         mapsViewModel.getMarkerAddressDetails(userLocation.value.latitude, userLocation.value.longitude,
             context
@@ -146,7 +146,7 @@ fun Main(navController: NavController,
     // nor how to move the location getting logic outside of the mainActivity
     LaunchedEffect (address) {
         if (address is ResponseState.Success){
-            val addressSuccess = (address as ResponseState.Success<Address?>).data
+            val addressSuccess = (address as ResponseState.Success<Address>).data
             if (addressSuccess != null){
                 userViewModel.updateUserData(UserUpdate(
                     latitude=userLocation.value.latitude,
