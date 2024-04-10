@@ -1,5 +1,6 @@
 package com.example.mzenly.components
 
+import android.content.Context
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -14,14 +15,17 @@ import androidx.compose.ui.tooling.preview.Preview
 import com.example.mzenly.ui.theme.MZenlyTheme
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.mzenly.R
 import java.text.SimpleDateFormat
 import java.util.Date
 
 
-fun getFormattedTimeDiff(nowDate: Date, userDate: Date): String {
+fun getFormattedTimeDiff(nowDate: Date, userDate: Date, context: Context): String {
     // made by gemini
     val diffInMs = nowDate.time - userDate.time
 
@@ -34,24 +38,24 @@ fun getFormattedTimeDiff(nowDate: Date, userDate: Date): String {
     val value: Long
 
     if (days > 0) {
-        unit = "d"
+        unit = context.resources.getString(R.string.days)
         value = days
     } else if (hours > 0) {
-        unit = "h"
+        unit = context.resources.getString(R.string.hours)
         value = hours
     } else if (minutes > 0) {
-        unit = "min"
+        unit = context.resources.getString(R.string.minutes)
         value = minutes
     } else {
-        unit = "sec"
+        unit = context.resources.getString(R.string.seconds)
         value = seconds
     }
 
-    return "$value$unit ago"
+    return "$value$unit ${context.resources.getString(R.string.ago)}"
 }
 
 @Composable
-fun UserCard(user: Map<String, Any>, content: @Composable() () -> Unit) {
+fun UserCard(user: Map<String, Any>, content: @Composable () -> Unit) {
     Row(modifier = Modifier
         .fillMaxWidth()
         .height(90.dp)
@@ -76,7 +80,7 @@ fun UserCard(user: Map<String, Any>, content: @Composable() () -> Unit) {
                 val userDate = formatter.parse(user.getOrDefault("last_update", Date()).toString())
 
                 Text(
-                    text = getFormattedTimeDiff(nowDate, userDate!!),
+                    text = getFormattedTimeDiff(nowDate, userDate!!, LocalContext.current),
                     fontSize = 14.sp,
                     color = Color(0xFF9A9A9A)
                 )

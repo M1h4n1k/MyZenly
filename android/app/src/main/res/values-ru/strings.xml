@@ -1,0 +1,32 @@
+<resources>
+    <string name="app_name">MZenly</string>
+    <string name="back">Назад</string>
+
+    <string name="settings">Настройки</string>
+    <string name="nickname">Имя пользователя</string>
+    <string name="show_to_people_near">Показывать людям рядом?</string>
+    <string name="yes">Да</string>
+    <string name="no">Нет</string>
+
+    <string name="people">Друзья</string>
+    <string name="seconds">сек</string>
+    <string name="minutes">мин</string>
+    <string name="hours">ч</string>
+    <string name="days">д</string>
+    <string name="ago">назад</string>
+    <string name="requests">Заявки</string>
+    <string name="near">Рядом</string>
+    <string name="near_explanation">Чтобы видеть пользователей рядом, включите эту функцию в настройках</string>
+    <string name="friends">Друзья</string>
+
+    <string name="permissions">Права доступа</string>
+    <string name="location_explanation1">Местоположение необходимо чтобы делиться геопозицией с друзьями. Пожалуйста, разрешите</string>
+    <string name="location_explanation2">Точное местоположение необходимо для приложения. Пожалуйста, разрешите</string>
+    <string name="give_permission">Дать доступ</string>
+
+    <string name="registration">Регистрация</string>
+    <string name="create_account">Создать аккаунт</string>
+
+    <string name="you">Вы</string>
+    <string name="your_position">Ваше местоположение</string>
+</resources>

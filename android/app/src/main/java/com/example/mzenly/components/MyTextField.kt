@@ -15,12 +15,12 @@ import androidx.compose.ui.unit.sp
 import com.example.mzenly.ui.theme.roundedSansFamily
 
 @Composable
-fun MyTextField(vv: String, onValueChange: (String) -> Unit){
+fun MyTextField(value: String, onValueChange: (String) -> Unit){
     Row (modifier = Modifier
         .fillMaxWidth()) {
         OutlinedTextField(  // TODO increase border width
             modifier = Modifier.fillMaxWidth(),
-            value = vv,
+            value = value,
             onValueChange = {
                 onValueChange(it)
             },

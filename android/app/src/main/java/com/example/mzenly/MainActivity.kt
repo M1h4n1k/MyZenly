@@ -18,6 +18,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -27,6 +28,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.mzenly.components.Header
 import com.example.mzenly.ui.theme.MZenlyTheme
+import com.example.mzenly.ui.theme.roundedSansFamily
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.isGranted
 import com.google.accompanist.permissions.rememberPermissionState
@@ -68,18 +70,22 @@ fun App(userViewModel: UserViewModel = viewModel()) {
     val locationPermissionState = rememberPermissionState(Manifest.permission.ACCESS_FINE_LOCATION)
     if (!locationPermissionState.status.isGranted){
         val textToShow = if (locationPermissionState.status.shouldShowRationale) {
-            "Precise location is important for this app. Please grant the permission."
+            stringResource(R.string.location_explanation1)
         } else {
-            "Location permission required for this feature to be available. " +
-                    "Please grant the permission"
+            stringResource(R.string.location_explanation2)
         }
         Column{
-            Header(text = "Permissions", navController = null)
+            Header(text = stringResource(R.string.permissions), navController = null)
             Column (modifier = Modifier.padding(20.dp), horizontalAlignment = Alignment.CenterHorizontally){
                 Text(textToShow, fontSize = 20.sp)
                 Spacer(modifier = Modifier.weight(1.0f))
                 Button(onClick = { locationPermissionState.launchPermissionRequest() }) {
-                    Text("Give permission", fontSize = 22.sp, modifier = Modifier.padding(20.dp, 7.dp))
+                    Text(
+                        stringResource(R.string.give_permission),
+                        fontSize = 22.sp,
+                        modifier = Modifier.padding(20.dp, 7.dp),
+                        fontFamily = roundedSansFamily
+                    )
                 }
             }
         }

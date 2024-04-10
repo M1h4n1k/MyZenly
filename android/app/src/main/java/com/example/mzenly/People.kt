@@ -31,6 +31,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -98,7 +99,7 @@ private fun PeopleBlock(
             // I can't come up with a solution of both having action buttons with changeable index,
             // cuz I want to keep the for-loop inside of this component
             when (title) {
-                "Requests" -> {
+                stringResource(R.string.requests) -> {
                     Column (modifier = Modifier.padding(0.dp, 0.dp)) {
                         ActionButton(
                             Action("add", Color(0xFF4CCD99)),
@@ -110,13 +111,13 @@ private fun PeopleBlock(
                         )
                     }
                 }
-                "Friends" -> {
+                stringResource(R.string.friends) -> {
                     ActionButton(
                         Action("remove", Color(0xFFFF204E)),
                         onClick = { userViewModel.deleteFriend(i, context) }
                     )
                 }
-                "Near" -> {
+                stringResource(R.string.near) -> {
                     ActionButton(
                         Action("request", Color(0xFFFFC700)),
                         onClick = { userViewModel.sendFriendRequest(i, context) }
@@ -143,7 +144,7 @@ fun People(navController: NavHostController, userViewModel: UserViewModel = view
     }
     if (profileDataRaw !is ResponseState.Success){
         Column (horizontalAlignment = Alignment.CenterHorizontally) {
-            Header(text = "People", navController = navController)
+            Header(text = stringResource(R.string.people), navController = navController)
             CircularProgressIndicator(modifier = Modifier.offset(0.dp, 10.dp))
         }
         return
@@ -156,27 +157,27 @@ fun People(navController: NavHostController, userViewModel: UserViewModel = view
 //        listOf(mapOf("nickname" to "123")), listOf(mapOf("nickname" to "123")), listOf(mapOf("nickname" to "123")))
 
     Column {
-        Header(text = "People", navController = navController)
+        Header(text = stringResource(R.string.people), navController = navController)
 
         if (profileData.requests.isNotEmpty()) {
-            PeopleBlock("Requests", profileData.requests)
+            PeopleBlock(stringResource(R.string.requests), profileData.requests)
             Spacer(modifier = Modifier.height(10.dp))
         }
         if (profileData.friends.isNotEmpty()) {
-            PeopleBlock("Friends", profileData.friends)
+            PeopleBlock(stringResource(R.string.friends), profileData.friends)
             Spacer(modifier = Modifier.height(10.dp))
         }
         if (profileData.near == null){
-            Text("Near", color = Color(0xFF686868), fontSize = 20.sp, modifier = Modifier.offset(15.dp))
+            Text(stringResource(R.string.near), color = Color(0xFF686868), fontSize = 20.sp, modifier = Modifier.offset(15.dp))
             Row (
                 horizontalArrangement = Arrangement.Center,
                 modifier = Modifier.fillMaxWidth().padding(20.dp, 0.dp)
             ){
-                Text("To see users near change it in settings", fontSize = 20.sp)
+                Text(stringResource(R.string.near_explanation), fontSize = 20.sp)
                 // maybe add button to settings or smth
             }
         } else if (profileData.near.isNotEmpty()) {
-            PeopleBlock("Near", profileData.near)
+            PeopleBlock(stringResource(R.string.near), profileData.near)
         }
     }
 }

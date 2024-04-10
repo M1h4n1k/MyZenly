@@ -48,6 +48,7 @@ import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.platform.LocalView
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.mzenly.components.MyTextField
@@ -91,7 +92,7 @@ fun Settings(navController: NavHostController, userViewModel: UserViewModel = vi
     }
 
     Column {
-        Header(text = "Settings", navController = navController)
+        Header(text = stringResource(R.string.settings), navController = navController)
         if (profileDataRaw !is ResponseState.Success){
             Row (modifier = Modifier
                 .fillMaxWidth()
@@ -119,14 +120,14 @@ fun Settings(navController: NavHostController, userViewModel: UserViewModel = vi
 
 
     Column {
-        Header(text = "Settings", navController = navController)
+        Header(text = stringResource(R.string.settings), navController = navController)
         Column (Modifier.padding(15.dp, 8.dp)) {
             Text(
-                text = "Nickname",
+                text = stringResource(R.string.nickname),
                 fontSize = 22.sp,
                 color = MaterialTheme.colorScheme.primary,
             )
-            MyTextField(vv = profileData.nickname, onValueChange = {
+            MyTextField(value = profileData.nickname, onValueChange = {
                 profileData = profileData.copy(nickname = it)
                 updateInfo()
             })
@@ -134,7 +135,7 @@ fun Settings(navController: NavHostController, userViewModel: UserViewModel = vi
             Spacer(modifier = Modifier.height(30.dp))
 
             Text(
-                text = "Show to people near you?",
+                text = stringResource(R.string.show_to_people_near),
                 fontSize = 22.sp,
                 color = MaterialTheme.colorScheme.primary,
             )
@@ -146,7 +147,7 @@ fun Settings(navController: NavHostController, userViewModel: UserViewModel = vi
                     .padding(20.dp, 0.dp), horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 ButtonSwitch(
-                    "No",
+                    stringResource(R.string.no),
                     !profileData.visible,
                     Color(0xFFFF204E),
                     onClick={
@@ -155,7 +156,7 @@ fun Settings(navController: NavHostController, userViewModel: UserViewModel = vi
                     }
                 )
                 ButtonSwitch(
-                    "Yes",  // is it better to pass text in the curly parenthesis?
+                    stringResource(R.string.yes),  // is it better to pass text in the curly parenthesis?
                     profileData.visible,
                     Color(0xFF4CCD99),
                     onClick={

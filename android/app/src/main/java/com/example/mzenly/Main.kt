@@ -45,6 +45,7 @@ import androidx.compose.ui.graphics.StrokeJoin
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -209,10 +210,10 @@ fun Main(
     ) {
         MarkerComposable(state = MarkerState(position = userLocation)) {
             Column (horizontalAlignment = Alignment.CenterHorizontally) {
-                Text("You", fontFamily = roundedSansFamily, fontSize = 22.sp)
+                Text(stringResource(R.string.you), fontFamily = roundedSansFamily, fontSize = 22.sp)
                 Icon(
                     imageVector = Icons.Filled.Place,
-                    contentDescription = "Philippines",
+                    contentDescription = stringResource(R.string.your_position),
                     tint = Color.Red,
                     modifier = Modifier.size(64.dp)
                 )
@@ -232,7 +233,7 @@ fun Main(
                         )
                         Icon(
                             imageVector = Icons.Filled.Place,
-                            contentDescription = "Philippines",
+                            contentDescription = "${f["nickname"]}'s position",
                             tint = Color.Blue,
                             modifier = Modifier.size(64.dp)
                         )
@@ -251,9 +252,9 @@ fun Main(
         horizontalAlignment = Alignment.End,
         verticalArrangement = Arrangement.Bottom
     ){
-        MainNavButton(Icons.Filled.Settings, "Settings", onClick = { navController.navigate("settings") })
+        MainNavButton(Icons.Filled.Settings, stringResource(R.string.settings), onClick = { navController.navigate("settings") })
         Spacer(modifier = Modifier.height(10.dp))
-        MainNavButton(Icons.Filled.Person, "People", onClick = { navController.navigate("people") })
+        MainNavButton(Icons.Filled.Person, stringResource(R.string.people), onClick = { navController.navigate("people") })
     }
 }
 

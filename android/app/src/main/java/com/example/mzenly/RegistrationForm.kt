@@ -20,6 +20,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -34,14 +35,14 @@ fun RegistrationForm(userViewModel: UserViewModel = viewModel()){
     val context = LocalContext.current
 
     Column (modifier = Modifier.fillMaxSize(), verticalArrangement = Arrangement.SpaceBetween) {
-        Header("Registration", null)
+        Header(stringResource(R.string.registration), null)
         Column(
             modifier = Modifier
                 .padding(20.dp, 0.dp),
             verticalArrangement = Arrangement.Center
         ) {
             Text(
-                text = "Nickname",
+                text = stringResource(R.string.nickname),
                 fontSize = 22.sp,
                 color = MaterialTheme.colorScheme.primary,
                 modifier = Modifier.offset((-10).dp)
@@ -63,7 +64,7 @@ fun RegistrationForm(userViewModel: UserViewModel = viewModel()){
                 .offset(0.dp, (-20).dp)
                 .padding(20.dp, 0.dp)
         ) {
-            Text("Create account", fontSize = 22.sp, fontFamily = roundedSansFamily)
+            Text(stringResource(R.string.create_account), fontSize = 22.sp, fontFamily = roundedSansFamily)
         }
     }
 }

@@ -18,12 +18,15 @@ import com.example.mzenly.ui.theme.MZenlyTheme
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
+import androidx.compose.ui.res.stringResource
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
+import com.example.mzenly.R
 
 
 @Composable
@@ -42,8 +45,8 @@ fun Header(text: String, navController: NavController?) {
                 colors = IconButtonDefaults.filledIconButtonColors()
             ) {
                 Icon(
-                    imageVector = Icons.Filled.ArrowBack,
-                    contentDescription = "Back",
+                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                    contentDescription = stringResource(R.string.back),
                     modifier = Modifier.size(55.dp).padding(5.dp)
                 )
             }
@@ -66,6 +69,6 @@ fun Header(text: String, navController: NavController?) {
 private fun HeaderPreview(){
     val navController = rememberNavController()
     MZenlyTheme {
-        Header(text = "Settings", navController = navController)
+        Header(text = stringResource(R.string.settings), navController = navController)
     }
 }
