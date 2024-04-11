@@ -26,6 +26,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import com.example.mzenly.components.Header
 import com.example.mzenly.ui.theme.MZenlyTheme
 import com.example.mzenly.ui.theme.roundedSansFamily
@@ -33,6 +34,7 @@ import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.isGranted
 import com.google.accompanist.permissions.rememberPermissionState
 import com.google.accompanist.permissions.shouldShowRationale
+import com.google.android.gms.maps.model.LatLng
 
 
 class MainActivity : ComponentActivity() {
@@ -93,7 +95,26 @@ fun App(userViewModel: UserViewModel = viewModel()) {
     }
 
     NavHost(navController, startDestination = "main") {
-        composable("main") {  Main(navController) }
+        composable(
+            "main?lat={lat}&lng={lng}",
+            arguments = listOf(
+                navArgument("lat") { defaultValue = "" },
+                navArgument("lng") { defaultValue = "" }
+            )
+        ) {backStackEntry ->
+            var cameraPos: LatLng? = null
+            if (
+                backStackEntry.arguments?.getString("lat") != ""
+                && backStackEntry.arguments?.getString("lng") != ""
+            ){
+                // It's worth adding checking for double, but since I am the only one working
+                // on this project I'll try not to forget about it
+                val lat = backStackEntry.arguments?.getString("lat")!!.toDouble()
+                val lng = backStackEntry.arguments?.getString("lng")!!.toDouble()
+                cameraPos = LatLng(lat, lng)
+            }
+            Main(navController, cameraPos)
+        }
         composable("people") {  People(navController) }
         composable("settings") { Settings(navController) }
     }

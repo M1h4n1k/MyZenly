@@ -1,5 +1,7 @@
 package com.example.mzenly
 
+import android.os.Bundle
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -43,6 +45,7 @@ import androidx.navigation.compose.rememberNavController
 import com.example.mzenly.components.Header
 import com.example.mzenly.components.UserCard
 import com.example.mzenly.ui.theme.MZenlyTheme
+import com.google.android.gms.maps.model.LatLng
 
 
 private data class Action(val name: String, val color: Color)
@@ -79,9 +82,11 @@ private fun ActionButton(action: Action, onClick: () -> Unit){
 
 @Composable
 private fun PeopleBlock(
+    navController: NavHostController,
     title: String,
     users: MutableList<Map<String, Any>>,
     userViewModel: UserViewModel = viewModel(),
+    mapsViewModel: MapsViewModel = viewModel()
     ){
     val context = LocalContext.current
     // Maybe add swiping logic in future
@@ -94,7 +99,9 @@ private fun PeopleBlock(
     )
     Spacer(modifier = Modifier.height(3.dp))
     for (i in users.indices) {
-        UserCard(users[i]) {
+        UserCard(users[i], onClick = {
+            navController.navigate("main?lat=${users[i]["latitude"]}&lng=${users[i]["longitude"]}")
+        }) {
             // I don't really like this nested thing here, but on the other hand
             // I can't come up with a solution of both having action buttons with changeable index,
             // cuz I want to keep the for-loop inside of this component
@@ -156,11 +163,11 @@ fun People(navController: NavHostController, userViewModel: UserViewModel = view
         Header(text = stringResource(R.string.people), navController = navController)
 
         if (profileData.requests.isNotEmpty()) {
-            PeopleBlock(stringResource(R.string.requests), profileData.requests)
+            PeopleBlock(navController, stringResource(R.string.requests), profileData.requests)
             Spacer(modifier = Modifier.height(10.dp))
         }
         if (profileData.friends.isNotEmpty()) {
-            PeopleBlock(stringResource(R.string.friends), profileData.friends)
+            PeopleBlock(navController, stringResource(R.string.friends), profileData.friends)
             Spacer(modifier = Modifier.height(10.dp))
         }
         if (profileData.near == null){
@@ -173,7 +180,7 @@ fun People(navController: NavHostController, userViewModel: UserViewModel = view
                 // maybe add button to settings or smth
             }
         } else if (profileData.near.isNotEmpty()) {
-            PeopleBlock(stringResource(R.string.near), profileData.near)
+            PeopleBlock(navController, stringResource(R.string.near), profileData.near)
         }
     }
 }

@@ -1,7 +1,9 @@
 package com.example.mzenly.components
 
 import android.content.Context
+import android.util.Log
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -55,16 +57,17 @@ fun getFormattedTimeDiff(nowDate: Date, userDate: Date, context: Context): Strin
 }
 
 @Composable
-fun UserCard(user: Map<String, Any>, content: @Composable () -> Unit) {
+fun UserCard(user: Map<String, Any>, onClick: () -> Unit, content: @Composable () -> Unit) {
     Row(modifier = Modifier
         .fillMaxWidth()
         .height(90.dp)
         .background(Color.White)
+        .clickable { onClick() }
         .padding(15.dp, 5.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Column () {
+        Column {
             Row (verticalAlignment = Alignment.CenterVertically){
                 Text(
                     text = user.getOrDefault("nickname", "").toString(),
@@ -108,7 +111,7 @@ private fun UserCardPreview(){
             "nickname" to "Michael",
             "place" to "Insinoorinkatu, Tampere",
             "last_update" to "2024-04-07T13:54:53"
-        )) {
+        ), onClick = { }) {
             Text("Btns")
         }
     }

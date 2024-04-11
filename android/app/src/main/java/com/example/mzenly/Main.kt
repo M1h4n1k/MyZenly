@@ -135,6 +135,7 @@ private fun PlaceHeader(place: String){
 @Composable
 fun Main(
     navController: NavController,
+    latLng: LatLng?,
     mapsViewModel: MapsViewModel = viewModel(),
     userViewModel: UserViewModel = viewModel()
 ){
@@ -147,28 +148,14 @@ fun Main(
     val userLocation by userViewModel.userLocation.collectAsState()
     var cityHeader by remember { mutableStateOf("") }
     val cameraPositionState = rememberCameraPositionState {
-        position = if (lastLocation != null)
+        position = if (latLng != null)
+            CameraPosition.fromLatLngZoom(latLng, 17f)
+        else if (lastLocation != null)
             CameraPosition.fromLatLngZoom(LatLng(lastLocation.latitude, lastLocation.longitude), 17f)
         else
             CameraPosition.fromLatLngZoom(LatLng(0.0, 0.0), 17f)
 
     }
-
-    val locListener = android.location.LocationListener {
-        p0 -> run {
-            userViewModel.setUserLocation(LatLng(p0.latitude, p0.longitude))
-
-            if (cameraPositionState.position.target == LatLng(0.0, 0.0))
-                cameraPositionState.position = CameraPosition.fromLatLngZoom(userLocation, 17f)
-
-            mapsViewModel.getMarkerAddressDetails(userLocation.latitude, userLocation.longitude,
-                context
-            )
-            Log.d("LOC UPD", "${p0.latitude} ${p0.longitude}")
-        }
-    }
-    locationManager.removeUpdates(locListener)
-    locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 5000, 10f, locListener)
 
     val address by mapsViewModel.addressDetail.collectAsState()
 
@@ -187,7 +174,29 @@ fun Main(
     }
 
     val profileDataRaw by userViewModel.userData.collectAsState()
-    LaunchedEffect(Unit){ userViewModel.loadUserData(context) }
+    LaunchedEffect(Unit){
+        val locListener = android.location.LocationListener {
+            p0 -> run {
+                userViewModel.setUserLocation(LatLng(p0.latitude, p0.longitude))
+
+                if (cameraPositionState.position.target == LatLng(0.0, 0.0))
+                    cameraPositionState.position = CameraPosition.fromLatLngZoom(userLocation, 17f)
+
+                mapsViewModel.getMarkerAddressDetails(userLocation.latitude, userLocation.longitude,
+                    context
+                )
+                Log.d("LOC UPD", "${p0.latitude} ${p0.longitude}")
+            }
+        }
+        locationManager.removeUpdates(locListener)
+        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 5000, 10f, locListener)
+
+        mapsViewModel.getMarkerAddressDetails(userLocation.latitude, userLocation.longitude,
+            context
+        )
+
+        userViewModel.loadUserData(context)
+    }
 
 
     GoogleMap(
@@ -269,7 +278,7 @@ private fun MainPreview(){
             color = MaterialTheme.colorScheme.background
         ) {
             NavHost(navController, startDestination = "main") {
-                composable("main") { Main(navController) }
+                composable("main") { Main(navController, null) }
             }
         }
     }
