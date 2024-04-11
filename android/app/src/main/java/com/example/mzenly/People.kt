@@ -152,10 +152,6 @@ fun People(navController: NavHostController, userViewModel: UserViewModel = view
     val profileData = (profileDataRaw as ResponseState.Success<ProfileData>).data
 
 
-//    profileData.value = ProfileData(
-//        1, "HUY", "PIZDA", "0 0", Date(), false,
-//        listOf(mapOf("nickname" to "123")), listOf(mapOf("nickname" to "123")), listOf(mapOf("nickname" to "123")))
-
     Column {
         Header(text = stringResource(R.string.people), navController = navController)
 

@@ -65,10 +65,7 @@ private fun ButtonSwitch(text: String, active: Boolean, activeColor: Color, onCl
     )
     val view = LocalView.current
     Button(
-        onClick = {
-            onClick()
-            view.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP)
-                  },
+        onClick = { onClick() },
         colors = ButtonDefaults.buttonColors(
             containerColor = animatedColor ,
             contentColor = Color.White
