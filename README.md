@@ -1,4 +1,6 @@
 # MyZenly
+**DISCLAIMER:** it's my first time using jetpack compose, so the code is not perfect. I tried my best to make it as good as possible.
+
 Simple clone of Zenly app. It's a social network for sharing your location with your friends. I picked this topic because I was curious of the technical challenges I would face. 
 Also, it has a lot of features that are needed for the final project.
 ## Screens
