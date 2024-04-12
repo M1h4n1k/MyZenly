@@ -91,7 +91,7 @@ private fun MainNavButton(icon: ImageVector, text: String, onClick: () -> Unit){
                 modifier = Modifier.size(45.dp),
                 tint = Color.White
             )
-            Text(text, color = Color.White, fontSize = 12.sp)
+            Text(text, color = Color.White, fontSize = 12.sp, fontFamily = roundedSansFamily)
         }
     }
 }
@@ -172,7 +172,7 @@ fun Main(
                 userViewModel.setUserLocation(LatLng(p0.latitude, p0.longitude))
 
                 if (cameraPositionState.position.target == LatLng(0.0, 0.0))
-                    cameraPositionState.position = CameraPosition.fromLatLngZoom(userLocation, 17f)
+                    cameraPositionState.position = CameraPosition.fromLatLngZoom(LatLng(p0.latitude, p0.longitude), 17f)
 
                 mapsViewModel.getMarkerAddressDetails(userLocation.latitude, userLocation.longitude,
                     context

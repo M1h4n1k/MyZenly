@@ -60,7 +60,6 @@ private fun ButtonSwitch(text: String, active: Boolean, activeColor: Color, onCl
         if (active) activeColor else Color(0xFF989898),
         label = "color"
     )
-    val view = LocalView.current
     Button(
         onClick = { onClick() },
         colors = ButtonDefaults.buttonColors(
@@ -79,12 +78,14 @@ private fun ButtonSwitch(text: String, active: Boolean, activeColor: Color, onCl
 @Composable
 fun Settings(navController: NavHostController, userViewModel: UserViewModel = viewModel()){
     val profileDataRaw by userViewModel.userData.collectAsState()
+    var deleteToggle by remember { mutableStateOf(false) }
 
     val context = LocalContext.current
     LaunchedEffect(Unit){
         userViewModel.loadUserData(context)
     }
 
+    if (deleteToggle) DeleteDialog(onDismiss = { deleteToggle = false }, context = context)
     Column {
         Header(text = stringResource(R.string.settings), navController = navController)
         if (profileDataRaw !is ResponseState.Success){
@@ -93,6 +94,22 @@ fun Settings(navController: NavHostController, userViewModel: UserViewModel = vi
                 .offset(0.dp, 10.dp), horizontalArrangement=Arrangement.Center){
                 CircularProgressIndicator()
             }
+            Row {
+                Button(
+                    onClick = { deleteToggle = true },
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = Color(0xFFFF204E),
+                        contentColor = Color.White
+                    ),
+                    shape = RoundedCornerShape(15.dp),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(70.dp)
+                        .padding(20.dp, 0.dp)
+                ) {
+                    Text(stringResource(R.string.reset_app), fontSize = 22.sp, fontFamily = roundedSansFamily)
+                }
+            }
             return;
         }
     }
@@ -100,7 +117,6 @@ fun Settings(navController: NavHostController, userViewModel: UserViewModel = vi
     val handler by remember { mutableStateOf(Handler()) }
     var runnable by remember { mutableStateOf(Runnable {}) }
     var profileData by remember { mutableStateOf((profileDataRaw as ResponseState.Success<ProfileData>).data) }
-    var deleteToggle by remember { mutableStateOf(false) }
 
     fun updateInfo(){
         handler.removeCallbacks(runnable)
@@ -113,7 +129,6 @@ fun Settings(navController: NavHostController, userViewModel: UserViewModel = vi
         handler.postDelayed(runnable, 1000)
     }
 
-    if (deleteToggle) DeleteDialog(onDismiss = { deleteToggle = false }, context = context)
     Column {
         Header(text = stringResource(R.string.settings), navController = navController)
         Column (Modifier.padding(15.dp, 8.dp)) {
@@ -160,7 +175,7 @@ fun Settings(navController: NavHostController, userViewModel: UserViewModel = vi
                     }
                 )
             }
-            
+
             Spacer(modifier = Modifier.height(30.dp))
 
             Row {
