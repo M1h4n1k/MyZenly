@@ -7,6 +7,8 @@
     <string name="show_to_people_near">Show to people near you?</string>
     <string name="yes">Yes</string>
     <string name="no">No</string>
+    <string name="reset_app">Reset app?</string>
+    <string name="reset_explanation">You will lose all of your settings and friends. After reset you should restart the app</string>
 
     <string name="people">People</string>
     <string name="seconds">sec</string>

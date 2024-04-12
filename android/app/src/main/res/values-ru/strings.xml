@@ -7,6 +7,8 @@
     <string name="show_to_people_near">Показывать людям рядом?</string>
     <string name="yes">Да</string>
     <string name="no">Нет</string>
+    <string name="reset_app">Сбросить приложение?</string>
+    <string name="reset_explanation">Вы потеряете все настройки и друзей. После сброса необходимо перезапустить приложение</string>
 
     <string name="people">Друзья</string>
     <string name="seconds">сек</string>
