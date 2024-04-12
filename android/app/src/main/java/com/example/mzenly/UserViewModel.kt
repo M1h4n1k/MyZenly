@@ -3,8 +3,6 @@ package com.example.mzenly
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.SharedPreferences
-import android.location.Location
-import android.location.LocationManager
 import android.widget.Toast
 import androidx.lifecycle.ViewModel
 import com.google.android.gms.maps.model.LatLng

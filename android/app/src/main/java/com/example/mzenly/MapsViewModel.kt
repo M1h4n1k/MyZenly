@@ -6,7 +6,6 @@ import android.content.Context
 import android.location.Address
 import android.location.Geocoder
 import android.os.Build
-import androidx.annotation.RequiresApi
 import androidx.lifecycle.ViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow

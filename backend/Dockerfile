@@ -2,7 +2,7 @@ FROM python:3.11
 
 WORKDIR /app
 
-ENV DBPASS=rectione
+ENV DBPASS=passwd
 ENV DATABASE=host.docker.internal
 
 EXPOSE 84

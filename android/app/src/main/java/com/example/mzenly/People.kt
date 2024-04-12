@@ -1,7 +1,5 @@
 package com.example.mzenly
 
-import android.os.Bundle
-import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -19,7 +17,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.Divider
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -45,7 +42,6 @@ import androidx.navigation.compose.rememberNavController
 import com.example.mzenly.components.Header
 import com.example.mzenly.components.UserCard
 import com.example.mzenly.ui.theme.MZenlyTheme
-import com.google.android.gms.maps.model.LatLng
 
 
 private data class Action(val name: String, val color: Color)
