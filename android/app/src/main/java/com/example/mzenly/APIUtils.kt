@@ -20,7 +20,7 @@ import retrofit2.http.Query
 import java.util.Date
 
 
-var API_URL = "http://84.249.17.76:84/api/"
+var API_URL = "https://tuni.evicon.fun/api/"
 
 val gson: Gson = GsonBuilder()
     .setDateFormat("yyyy-MM-dd'T'HH:mm:ss")
@@ -58,12 +58,14 @@ class EmptyCallback<T> (private val context: Context) : Callback<T> {
     override fun onResponse(call: Call<T>, response: Response<T>) {
         val bodyString = response.raw().toString()
         if (!response.isSuccessful){  // 200, 201
+            Log.e("APICALL", "Error: $bodyString")
             Toast.makeText(context, "Error: $bodyString", Toast.LENGTH_SHORT).show()
             return
         }
-        Log.e("Retrofit", "Response: $bodyString")
+        Log.d("APICALL", "Response: $bodyString")
     }
     override fun onFailure(call: Call<T>, t: Throwable) {
+        Log.e("APICALL", "Internet error: " + t.localizedMessage)
         Toast.makeText(context, "Internet error: " + t.localizedMessage, Toast.LENGTH_SHORT).show()
     }
 }

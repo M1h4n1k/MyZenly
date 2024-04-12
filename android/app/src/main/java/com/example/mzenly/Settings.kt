@@ -1,5 +1,7 @@
 package com.example.mzenly
 
+import android.content.Context
+import android.content.SharedPreferences
 import android.os.Handler
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.layout.Arrangement
@@ -13,12 +15,17 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -44,6 +51,7 @@ import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.mzenly.components.DeleteDialog
 import com.example.mzenly.components.MyTextField
 
 @Composable
@@ -92,6 +100,7 @@ fun Settings(navController: NavHostController, userViewModel: UserViewModel = vi
     val handler by remember { mutableStateOf(Handler()) }
     var runnable by remember { mutableStateOf(Runnable {}) }
     var profileData by remember { mutableStateOf((profileDataRaw as ResponseState.Success<ProfileData>).data) }
+    var deleteToggle by remember { mutableStateOf(false) }
 
     fun updateInfo(){
         handler.removeCallbacks(runnable)
@@ -104,7 +113,7 @@ fun Settings(navController: NavHostController, userViewModel: UserViewModel = vi
         handler.postDelayed(runnable, 1000)
     }
 
-
+    if (deleteToggle) DeleteDialog(onDismiss = { deleteToggle = false }, context = context)
     Column {
         Header(text = stringResource(R.string.settings), navController = navController)
         Column (Modifier.padding(15.dp, 8.dp)) {
@@ -151,7 +160,25 @@ fun Settings(navController: NavHostController, userViewModel: UserViewModel = vi
                     }
                 )
             }
+            
+            Spacer(modifier = Modifier.height(30.dp))
 
+            Row {
+                Button(
+                    onClick = { deleteToggle = true },
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = Color(0xFFFF204E),
+                        contentColor = Color.White
+                    ),
+                    shape = RoundedCornerShape(15.dp),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(70.dp)
+                        .padding(20.dp, 0.dp)
+                ) {
+                    Text(stringResource(R.string.reset_app), fontSize = 22.sp, fontFamily = roundedSansFamily)
+                }
+            }
         }
     }
 }
